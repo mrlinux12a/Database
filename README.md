@@ -30,6 +30,9 @@ descrizione originale, e vedere in «Copertura degli attributi» quanti articoli
 * **Attributi candidati** (`attributo_candidato`): testi ripetuti nel nomeV2, proposti da `proponi_attributi.py`, da approvare (→ nomeV3).
 * **Passaggio dei risultati**: `esporta.py --catalogo "Nome"` crea `esportazioni/<nome>.json.gz` (niente prezzi);
   chi tiene il DB principale importa lo stesso CSV con `import_catalogo.py` e poi `importa_risultati.py <file> [--prova]`.
+* **Prima installazione** (con Python 3.15 e PostgreSQL già installati): Windows → doppio clic su `installa.bat`;
+  Mac/Linux → `bash installa.sh`. Installa le librerie (`requirements.txt`), crea `.env` e il database, applica lo schema.
+  Su Mac/Linux gli script si lanciano con `python3.15` al posto di `py -3.15` e i `.bat` non servono.
 * **Impostazioni di connessione**: copia `.env.example` in `.env` e cambia `PGDATABASE` (e gli altri valori). Lo leggono tutti gli
   script e il sito; una variabile già impostata nel terminale ha la precedenza. `.env` non va su git.
 * Cartella di Excel e CSV: variabile `ORIGINE_CATALOGHI`, oppure `--csv` / `--excel`.
