@@ -19,6 +19,7 @@ fonti/aircontrolclima_it/pagine.json
 # Password e impostazioni locali
 .env
 .env.*
+!.env.example
 .claude/settings.local.json
 
 # Sistema

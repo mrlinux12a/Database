@@ -19,7 +19,11 @@ ENV, ENV_ESEMPIO = os.path.join(AQUI, ".env"), os.path.join(AQUI, ".env.example"
 def main():
     print("Python %s" % sys.version.split()[0])
     if not os.path.isfile(ENV):
-        shutil.copyfile(ENV_ESEMPIO, ENV)
+        if os.path.isfile(ENV_ESEMPIO):
+            shutil.copyfile(ENV_ESEMPIO, ENV)
+        else:
+            with open(ENV, "w", encoding="utf-8") as f:
+                f.write("PGDATABASE=db_serio_finale\nPGHOST=localhost\nPGPORT=5432\nPGUSER=postgres\n")
         if sys.platform != "win32":      # su Mac/Linux l'utente di PostgreSQL e' di solito quello del sistema
             with open(ENV, encoding="utf-8") as f:
                 t = f.read()
