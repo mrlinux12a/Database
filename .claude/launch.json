@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "db-serio-web",
+      "runtimeExecutable": "py",
+      "runtimeArgs": ["-3.13", "web/server.py"],
+      "port": 8001
+    }
+  ]
+}

@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Articoli e attributi – db_serio_finale</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #ffffff; --testo: #1b1f24; --tenue: #5d6773; --linea: #e2e6ea;
+    --accento: #0b5cad; --riga: #f1f5fa;
+    --desc-bg: #e9edf1; --desc-t: #47525e;
+    --cod-bg: #e3eaf7; --cod-t: #2d4a80;
+    --sito-bg: #dcf2e4; --sito-t: #1c6a3a;
+    --web-bg: #fde9cc; --web-t: #84470a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14171b; --card: #1d2227; --testo: #e6e9ed; --tenue: #98a2ae; --linea: #2f363d;
+            --accento: #6cb0ff; --riga: #232a31;
+            --desc-bg: #2b3239; --desc-t: #b4bdc7;
+            --cod-bg: #26344d; --cod-t: #a9c3f2;
+            --sito-bg: #1f3a2a; --sito-t: #8ad3a4;
+            --web-bg: #4a3318; --web-t: #f0c27e; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--testo);
+         font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 1060px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sotto { color: var(--tenue); margin: 0 0 16px; min-height: 1.45em; }
+
+  .barra { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  input[type=search], select { padding: 9px 12px; font: inherit; color: inherit; background: var(--card);
+         border: 1px solid var(--linea); border-radius: 8px; }
+  input[type=search] { flex: 1 1 280px; min-width: 0; }
+  input[type=search]::-webkit-search-cancel-button { display: none; }
+  select { max-width: 100%; }
+  input:focus, select:focus { outline: 2px solid var(--accento); outline-offset: -1px; }
+  button { font: inherit; color: inherit; background: var(--card); border: 1px solid var(--linea);
+           border-radius: 8px; padding: 8px 14px; cursor: pointer; }
+  button:hover:not(:disabled) { border-color: var(--accento); color: var(--accento); }
+  button:disabled { opacity: .45; cursor: default; }
+  .opzioni { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; margin: 0 0 8px; color: var(--tenue); font-size: 13.5px; }
+  .opzioni label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+  .legenda { margin: 0 0 14px; color: var(--tenue); font-size: 13px; }
+
+  .tag { display: inline-block; font-size: 10.5px; line-height: 1.55; padding: 0 7px; border-radius: 999px;
+         text-decoration: none; vertical-align: 1px; white-space: nowrap; margin-left: 2px; }
+  .tag.descrizione { background: var(--desc-bg); color: var(--desc-t); }
+  .tag.codice { background: var(--cod-bg); color: var(--cod-t); }
+  .tag.sito { background: var(--sito-bg); color: var(--sito-t); }
+  .tag.web { background: var(--web-bg); color: var(--web-t); }
+  a.tag:hover { text-decoration: underline; }
+
+  details.copertura { background: var(--card); border: 1px solid var(--linea); border-radius: 10px; margin-bottom: 14px; }
+  details.copertura summary { cursor: pointer; padding: 10px 14px; font-weight: 600; }
+  details.copertura .corpo { padding: 0 14px 12px; overflow-x: auto; }
+  .copertura table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  .copertura th, .copertura td { text-align: left; padding: 5px 8px; border-top: 1px solid var(--linea); vertical-align: middle; }
+  .copertura th { font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--tenue); border-top: 0; }
+  .copertura td.n { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .copertura tr.zero td { color: var(--tenue); }
+  .copertura .barra-n { display: inline-block; height: 7px; border-radius: 4px; background: var(--accento); opacity: .55;
+         vertical-align: middle; margin-left: 8px; }
+  .copertura button.testo { border: 0; padding: 0; background: none; color: var(--accento); text-align: left; cursor: pointer; }
+  .copertura button.testo:hover { text-decoration: underline; }
+  .copertura button.testo:disabled { color: var(--tenue); text-decoration: none; opacity: 1; cursor: default; }
+
+  .art { background: var(--card); border: 1px solid var(--linea); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
+  .testa { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+  .cod { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; background: var(--riga);
+         border: 1px solid var(--linea); border-radius: 6px; padding: 1px 8px; word-break: break-all; }
+  .nome { flex: 1 1 320px; font-size: 15.5px; font-weight: 600; margin: 0; }
+  .nome2 { margin: 4px 0 0; color: var(--tenue); font-size: 13.5px; }
+  .descr { display: none; margin: 6px 0 0; color: var(--tenue); font-size: 13px; }
+  body.con-descr .descr { display: block; }
+  .nessuno { margin: 8px 0 0; color: var(--tenue); font-size: 13.5px; }
+  .attr { display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 8px 18px; margin: 10px 0 0; }
+  .attr > div { min-width: 0; }
+  dt { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--tenue); cursor: help; }
+  dd { margin: 0; overflow-wrap: anywhere; }
+
+  .vuoto { padding: 28px 14px; text-align: center; color: var(--tenue); background: var(--card);
+           border: 1px solid var(--linea); border-radius: 10px; }
+  .pager { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; }
+  .pager span { color: var(--tenue); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Articoli Air Control: nome e attributi</h1>
+  <p class="sotto" id="conteggio">Carico…</p>
+
+  <div class="barra">
+    <input type="search" id="q" placeholder="Cerca nel codice, nel nome o in un valore (es. plenum 150, anodizzato, Belimo)" autofocus
+           aria-label="Cerca">
+    <select id="attr" aria-label="Filtra per attributo"><option value="">Tutti gli articoli</option></select>
+    <select id="origine" aria-label="Filtra per origine del dato">
+      <option value="">Qualsiasi origine</option>
+      <option value="descrizione">dalla descrizione</option>
+      <option value="codice">dal codice</option>
+      <option value="sito">dalla scheda del produttore</option>
+      <option value="web">dal web</option>
+    </select>
+    <select id="ordine" aria-label="Ordina per">
+      <option value="codice">Ordina per codice</option>
+      <option value="nome">Ordina per nome</option>
+    </select>
+    <button id="azzera" type="button" hidden>Azzera</button>
+  </div>
+  <div class="opzioni">
+    <label><input type="checkbox" id="descr"> mostra anche la descrizione originale del catalogo</label>
+  </div>
+  <p class="legenda">Origine di ogni valore:
+    <span class="tag descrizione">descr.</span> testo del catalogo ·
+    <span class="tag codice">codice</span> lettere/cifre del codice ·
+    <span class="tag sito">sito ↗</span> scheda del produttore (vale per la famiglia) ·
+    <span class="tag web">web ↗</span> scheda di un costruttore terzo. Dove non c'è un valore l'attributo non compare.</p>
+
+  <details class="copertura" id="copertura">
+    <summary>Copertura degli attributi (quanti articoli hanno un valore)</summary>
+    <div class="corpo"><table>
+      <thead><tr><th>Attributo</th><th>Articoli</th><th>Origine</th></tr></thead>
+      <tbody id="copertura-righe"></tbody>
+    </table></div>
+  </details>
+
+  <div id="elenco"></div>
+
+  <div class="pager">
+    <button id="prec" type="button" disabled>‹ Precedente</button>
+    <span id="pagina"></span>
+    <button id="succ" type="button" disabled>Successiva ›</button>
+  </div>
+</main>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const fmt = (n) => n.toLocaleString("it-IT");
+const ORIG = {
+  descrizione: ["descr.", "Valore preso dal testo della descrizione del catalogo"],
+  codice: ["codice", "Valore ricavato dalle lettere/cifre del codice fornitore"],
+  sito: ["sito", "Dalla scheda del produttore (aircontrolclima.it): vale per tutta la famiglia di prodotto"],
+  web: ["web", "Da una scheda/pagina di un costruttore terzo trovata sul web"],
+};
+let meta = {}, totali = { totale: 0, con_attributi: 0, senza: 0 };
+let pagina = 1, ultima = 1, ctrl = null, timer = null;
+
+function el(tag, classe, testo) {
+  const e = document.createElement(tag);
+  if (classe) e.className = classe;
+  if (testo != null) e.textContent = testo;
+  return e;
+}
+function etichettaOrigine(orig, fonte, conTesto) {
+  const [t, tip] = ORIG[orig] || [orig, ""];
+  const link = fonte && /^https?:\/\//i.test(fonte);
+  const e = el(link ? "a" : "span", "tag " + orig, link ? t + " ↗" : t);
+  e.title = tip + (link ? "\n" + fonte : "");
+  if (link) { e.href = fonte; e.target = "_blank"; e.rel = "noopener noreferrer"; }
+  return e;
+}
+
+/* ---- stato dei filtri, tenuto anche nell'indirizzo della pagina ---- */
+function stato() {
+  return { q: $("#q").value.trim(), attr: $("#attr").value, origine: $("#origine").value, ordine: $("#ordine").value };
+}
+function leggiIndirizzo() {
+  const p = new URLSearchParams(location.search);
+  $("#q").value = p.get("q") || "";
+  $("#origine").value = p.get("origine") || "";
+  $("#ordine").value = p.get("ordine") || "codice";
+  $("#descr").checked = p.get("descr") === "1";
+  document.body.classList.toggle("con-descr", $("#descr").checked);
+  pagina = Math.max(1, parseInt(p.get("pagina") || "1", 10) || 1);
+  return p.get("attr") || "";
+}
+function scriviIndirizzo(s) {
+  const p = new URLSearchParams();
+  if (s.q) p.set("q", s.q);
+  if (s.attr) p.set("attr", s.attr);
+  if (s.origine) p.set("origine", s.origine);
+  if (s.ordine !== "codice") p.set("ordine", s.ordine);
+  if ($("#descr").checked) p.set("descr", "1");
+  if (pagina > 1) p.set("pagina", pagina);
+  try { history.replaceState(null, "", p.toString() ? "?" + p : location.pathname); } catch (e) { /* non importante */ }
+}
+
+/* ---- dati ---- */
+async function caricaAttributi(attrIniziale) {
+  const r = await fetch("/api/attributi");
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  const d = await r.json();
+  totali = d;
+  meta = Object.fromEntries(d.attributi.map((a) => [a.chiave, a]));
+
+  const sel = $("#attr");
+  sel.replaceChildren(new Option("Tutti gli articoli", ""),
+    new Option("Senza nessun attributo (" + fmt(d.senza) + ")", "__nessuno"),
+    ...d.attributi.filter((a) => a.n > 0).map((a) => new Option("con " + a.breve + " (" + fmt(a.n) + ")", a.chiave)));
+  sel.value = attrIniziale;
+  if (sel.value !== attrIniziale) sel.value = "";
+
+  const max = Math.max(1, ...d.attributi.map((a) => a.n));
+  $("#copertura-righe").replaceChildren(...d.attributi.map((a) => {
+    const tr = el("tr", a.n ? "" : "zero");
+    const c1 = el("td");
+    const b = el("button", "testo", (a.nuovo ? "★ " : "") + a.etichetta);
+    b.type = "button"; b.disabled = !a.n;
+    b.addEventListener("click", () => { $("#attr").value = a.chiave; pagina = 1; carica(); window.scrollTo({ top: 0, behavior: "smooth" }); });
+    c1.append(b);
+    const c2 = el("td", "n", a.n ? fmt(a.n) : "nessuno");
+    if (a.n) { const barra = el("span", "barra-n"); barra.style.width = Math.max(2, Math.round(120 * a.n / max)) + "px"; c2.append(barra); }
+    const c3 = el("td");
+    for (const o of ["descrizione", "codice", "sito", "web"]) {
+      if (a.origini[o]) { const t = etichettaOrigine(o); t.textContent += " " + fmt(a.origini[o]); c3.append(t, " "); }
+    }
+    tr.append(c1, c2, c3);
+    return tr;
+  }));
+  $("#copertura").querySelector("summary").textContent =
+    "Copertura degli attributi (" + d.attributi.filter((a) => a.n).length + " di " + d.attributi.length + " hanno almeno un valore)";
+}
+
+async function carica() {
+  if (ctrl) ctrl.abort();                       // una ricerca nuova annulla quella ancora in corso
+  ctrl = new AbortController();
+  const s = stato();
+  $("#azzera").hidden = !(s.q || s.attr || s.origine);
+  scriviIndirizzo(s);
+  try {
+    const r = await fetch("/api/articoli?" + new URLSearchParams({ ...s, pagina }), { signal: ctrl.signal });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    disegna(await r.json(), s);
+  } catch (e) {
+    if (e.name === "AbortError") return;
+    $("#elenco").replaceChildren(el("div", "vuoto", "Impossibile leggere il database. Controlla che PostgreSQL sia acceso."));
+    $("#conteggio").textContent = "";
+  }
+}
+
+function scheda(a) {
+  const art = el("article", "art");
+  const testa = el("header", "testa");
+  testa.append(el("span", "cod", a.cod), el("h2", "nome", a.nome || a.descr));
+  art.append(testa, el("p", "nome2", "nomeV2: " + (a.nome2 || "")), el("p", "descr", "Descrizione del catalogo: " + a.descr));
+  if (!a.attr.length) {
+    art.append(el("p", "nessuno", "Nessun attributo trovato per questo articolo."));
+    return art;
+  }
+  const dl = el("dl", "attr");
+  for (const [chiave, valore, orig, fonte] of a.attr) {
+    const m = meta[chiave] || { breve: chiave, etichetta: chiave, nuovo: false };
+    const box = el("div");
+    const dt = el("dt", null, m.breve);
+    dt.title = m.etichetta + (m.nuovo ? " (attributo nuovo ★)" : "");
+    const dd = el("dd");
+    dd.append(valore, " ", etichettaOrigine(orig, fonte));
+    box.append(dt, dd);
+    dl.append(box);
+  }
+  art.append(dl);
+  return art;
+}
+
+function disegna(d, s) {
+  pagina = d.pagina; ultima = d.pagine;
+  const filtro = s.q || s.attr || s.origine;
+  $("#conteggio").textContent = (filtro
+      ? fmt(d.totale) + (d.totale === 1 ? " articolo trovato" : " articoli trovati") + " su " + fmt(totali.totale)
+      : fmt(d.totale) + " articoli")
+    + " · " + fmt(totali.con_attributi) + " hanno almeno un attributo, " + fmt(totali.senza) + " nessuno";
+  $("#elenco").replaceChildren(...(d.righe.length ? d.righe.map(scheda) : [el("div", "vuoto", "Nessun articolo trovato.")]));
+  $("#pagina").textContent = "Pagina " + fmt(pagina) + " di " + fmt(ultima);
+  $("#prec").disabled = pagina <= 1;
+  $("#succ").disabled = pagina >= ultima;
+}
+
+function vai(p) { pagina = p; carica().then(() => window.scrollTo({ top: 0 })); }
+function daCapo() { pagina = 1; carica(); }
+
+$("#q").addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(daCapo, 250); });
+for (const id of ["#attr", "#origine", "#ordine"]) $(id).addEventListener("change", daCapo);
+$("#descr").addEventListener("change", () => {
+  document.body.classList.toggle("con-descr", $("#descr").checked);
+  scriviIndirizzo(stato());
+});
+$("#azzera").addEventListener("click", () => {
+  $("#q").value = ""; $("#attr").value = ""; $("#origine").value = ""; $("#q").focus(); vai(1);
+});
+$("#prec").addEventListener("click", () => vai(pagina - 1));
+$("#succ").addEventListener("click", () => vai(pagina + 1));
+
+caricaAttributi(leggiIndirizzo()).then(carica).catch(() => {
+  $("#elenco").replaceChildren(el("div", "vuoto", "Impossibile leggere il database. Controlla che PostgreSQL sia acceso."));
+  $("#conteggio").textContent = "";
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Dati commerciali e database: NON vanno su git (si scambiano come file, non nel repo)
+*.csv
+*.xlsx
+*.xls
+*.sql.gz
+*.dump
+*.backup
+dump/
+esportazioni/
+
+# Pagine del sito del produttore scaricate: si rigenerano con fonti/scrape_aircontrolclima.py
+fonti/aircontrolclima_it/pagine.json
+
+# Password e impostazioni locali
+.env
+.env.*
+.claude/settings.local.json
+
+# Sistema
+Thumbs.db
+.DS_Store
