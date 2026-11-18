@@ -29,7 +29,9 @@ import psycopg2
 from psycopg2.extras import execute_values
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-ORIGINE = r"C:\Users\SAMSUNG\lavoro\app2\db"
+# cartella con l'Excel e i CSV: variabile ORIGINE_CATALOGHI, oppure ..\app2\db accanto al progetto. Chi non ha questa
+# struttura passa i file con --csv e --excel.
+ORIGINE = os.environ.get("ORIGINE_CATALOGHI") or os.path.join(os.path.dirname(BASE), "app2", "db")
 EXCEL_DEFAULT = os.path.join(ORIGINE, "Flash_Delivery_Linee_per_Brand.xlsx")
 CSV_DEFAULT = os.path.join(ORIGINE, "cataloghi", "Air Control SRL.csv")
 BRAND_DEFAULT = "AIR CONTROL"          # intestazione del blocco nell'Excel

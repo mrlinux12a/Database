@@ -13,8 +13,13 @@ import re
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FONTE_SITO = os.path.join(BASE, "fonti", "aircontrolclima_it", "pagine.json")
-with open(FONTE_SITO, encoding="utf-8") as _f:
-    PAGINE = json.load(_f)
+if os.path.exists(FONTE_SITO):
+    with open(FONTE_SITO, encoding="utf-8") as _f:
+        PAGINE = json.load(_f)
+else:      # il file non e' nel repo: si crea con  py -3.13 fonti/scrape_aircontrolclima.py  (solo per il catalogo Air Control)
+    PAGINE = {}
+    print("ATTENZIONE: manca", FONTE_SITO, "- i dati delle schede del sito Air Control non saranno usati "
+          "(per rigenerarlo: py -3.13 fonti/scrape_aircontrolclima.py)")
 
 # (regex sul codice in maiuscolo senza il numero iniziale, id scheda) - la prima che combacia vince
 ESPLICITE = [

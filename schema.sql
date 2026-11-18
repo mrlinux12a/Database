@@ -55,3 +55,26 @@ CREATE TABLE IF NOT EXISTS materiale_attributo (
     PRIMARY KEY (codice, chiave)
 );
 CREATE INDEX IF NOT EXISTS materiale_attributo_chiave_idx ON materiale_attributo (chiave, valore);
+
+-- ---- famiglie e attributi candidati (lavoro per catalogo, vedi CLAUDE.md) ----------------------------------------------
+-- famiglia: l'elenco CONTROLLATO dei tipi di prodotto (vale per tutti i cataloghi: "Griglia di ripresa", "Plenum", ...)
+CREATE TABLE IF NOT EXISTS famiglia (
+    id      serial PRIMARY KEY,
+    nome    text NOT NULL UNIQUE,
+    note    text
+);
+ALTER TABLE materiale ADD COLUMN IF NOT EXISTS famiglia_id integer REFERENCES famiglia(id);
+CREATE INDEX IF NOT EXISTS materiale_famiglia_idx ON materiale (famiglia_id);
+
+-- attributo_candidato: testo che resta nel nomeV2 e si ripete su molti articoli = possibile nuovo attributo (poi nomeV3).
+-- Lo propone proponi_attributi.py; lo approva una persona (stato: proposto -> approvato | scartato).
+CREATE TABLE IF NOT EXISTS attributo_candidato (
+    id              serial PRIMARY KEY,
+    catalogo        text    NOT NULL,
+    testo           text    NOT NULL,
+    esempio_codice  text,
+    n               integer NOT NULL,           -- in quanti articoli compare
+    stato           text    NOT NULL DEFAULT 'proposto',
+    note            text,
+    UNIQUE (catalogo, testo)
+);

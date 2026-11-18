@@ -21,6 +21,20 @@ La pagina permette di: cercare (nel codice, nel nome, nella descrizione e nei va
 («con Colore», «senza nessun attributo»…) e per origine del dato, ordinare per codice o per nome, mostrare anche la
 descrizione originale, e vedere in «Copertura degli attributi» quanti articoli hanno un valore per ciascun attributo.
 
+## Più cataloghi, nomeV2, famiglie, lavoro in collaborazione
+
+* **Un modulo per catalogo**: `arricchimento/cataloghi/<nome>.py` (nome = catalogo in minuscolo, non alfanumerici → `_`).
+  Senza modulo si usa `generico.py`. Per un catalogo nuovo copia `_modello.py`. `arricchisci.py --catalogo "Nome"` lo carica da solo.
+* **nomeV2** = nomeV1 senza le informazioni già presenti come attributo (calcolato da `arricchimento/v2.py`, colonna `materiale.nomev2`).
+* **Famiglie**: tabella `famiglia` + `materiale.famiglia_id`. `proponi_famiglie.py` raggruppa per nomeV2 uguale; la scelta finale è umana.
+* **Attributi candidati** (`attributo_candidato`): testi ripetuti nel nomeV2, proposti da `proponi_attributi.py`, da approvare (→ nomeV3).
+* **Passaggio dei risultati**: `esporta.py --catalogo "Nome"` crea `esportazioni/<nome>.json.gz` (niente prezzi);
+  chi tiene il DB principale importa lo stesso CSV con `import_catalogo.py` e poi `importa_risultati.py <file> [--prova]`.
+* Cartella di Excel e CSV: variabile `ORIGINE_CATALOGHI`, oppure `--csv` / `--excel`.
+* `fonti/aircontrolclima_it/pagine.json` non è nel repository: se manca, Air Control funziona lo stesso (con un avviso);
+  per rigenerarlo `py -3.13 fonti/scrape_aircontrolclima.py`.
+* Istruzioni per chi lavora (anche per Claude): `CLAUDE.md`.
+
 ## Quali articoli entrano
 
 Gli articoli vengono da `app2/db/cataloghi/Air Control SRL.csv` (15 colonne, `;`) e da `app2/db/Flash_Delivery_Linee_per_Brand.xlsx`.
