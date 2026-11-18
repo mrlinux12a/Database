@@ -30,6 +30,8 @@ descrizione originale, e vedere in «Copertura degli attributi» quanti articoli
 * **Attributi candidati** (`attributo_candidato`): testi ripetuti nel nomeV2, proposti da `proponi_attributi.py`, da approvare (→ nomeV3).
 * **Passaggio dei risultati**: `esporta.py --catalogo "Nome"` crea `esportazioni/<nome>.json.gz` (niente prezzi);
   chi tiene il DB principale importa lo stesso CSV con `import_catalogo.py` e poi `importa_risultati.py <file> [--prova]`.
+* **Impostazioni di connessione**: copia `.env.example` in `.env` e cambia `PGDATABASE` (e gli altri valori). Lo leggono tutti gli
+  script e il sito; una variabile già impostata nel terminale ha la precedenza. `.env` non va su git.
 * Cartella di Excel e CSV: variabile `ORIGINE_CATALOGHI`, oppure `--csv` / `--excel`.
 * `fonti/aircontrolclima_it/pagine.json` non è nel repository: se manca, Air Control funziona lo stesso (con un avviso);
   per rigenerarlo `py -3.13 fonti/scrape_aircontrolclima.py`.

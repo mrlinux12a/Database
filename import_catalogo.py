@@ -28,6 +28,8 @@ import openpyxl
 import psycopg2
 from psycopg2.extras import execute_values
 
+import arricchimento  # noqa: F401  (legge il file .env)
+
 BASE = os.path.dirname(os.path.abspath(__file__))
 # cartella con l'Excel e i CSV: variabile ORIGINE_CATALOGHI, oppure ..\app2\db accanto al progetto. Chi non ha questa
 # struttura passa i file con --csv e --excel.

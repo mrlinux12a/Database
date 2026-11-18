@@ -23,6 +23,8 @@ import psycopg2
 from psycopg2.pool import ThreadedConnectionPool
 
 BASE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(BASE))
+import arricchimento  # noqa: E402,F401  (legge il file .env)
 INDEX = os.path.join(BASE, "index.html")
 PER_PAGINA = 50
 ORIGINI = ("descrizione", "codice", "sito", "web")
@@ -179,7 +181,8 @@ def main():
     except OSError:
         sys.exit("La porta %d e' gia' occupata: il sito e' probabilmente gia' acceso su http://localhost:%d" % (a.porta, a.porta))
     url = "http://localhost:%d" % a.porta
-    print("Database db_serio_finale: %d articoli. Sito su %s (CTRL+C per spegnerlo)" % (n, url))
+    print("Database %s: %d articoli. Sito su %s (CTRL+C per spegnerlo)"
+          % (os.environ.get("PGDATABASE", "db_serio_finale"), n, url))
     if a.apri:
         webbrowser.open(url)
     try:
