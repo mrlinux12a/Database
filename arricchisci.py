@@ -59,8 +59,9 @@ def main():
     cur = conn.cursor()
     with open(os.path.join(AQUI, "schema.sql"), encoding="utf-8") as f:
         cur.execute(f.read())
-    cur.execute("select codice, cod_fornitore, descrizione from materiale where catalogo = %s order by codice", (a.catalogo,))
-    righe = cur.fetchall()
+    cur.execute("select codice, cod_fornitore, descrizione, " + ", ".join(cataloghi.COLONNE_RIGA) +
+                " from materiale where catalogo = %s order by codice", (a.catalogo,))
+    righe = [r[:3] + (dict(zip(cataloghi.COLONNE_RIGA, r[3:])),) for r in cur.fetchall()]
     if not righe:
         cur.execute("select catalogo, count(*) from materiale group by 1 order by 1")
         sys.exit("Nessun articolo per il catalogo %r. Cataloghi presenti: %s" % (a.catalogo, cur.fetchall()))
@@ -72,9 +73,9 @@ def main():
         modulo.prepara([(r[1], r[2]) for r in righe])
 
     nomi, nomi2, attrs, errori, scartati = {}, {}, {}, 0, 0
-    for codice, forn, descr in righe:
+    for codice, forn, descr, colonne in righe:
         try:
-            nome, at = modulo.analizza(forn, descr)
+            nome, at = cataloghi.analizza(modulo, forn, descr, colonne)
         except Exception as e:                      # un articolo strano non deve fermare tutto
             errori += 1
             print("ERRORE", forn, repr(e), file=sys.stderr)

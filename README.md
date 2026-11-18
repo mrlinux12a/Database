@@ -21,12 +21,37 @@ La pagina permette di: cercare (nel codice, nel nome, nella descrizione e nei va
 («con Colore», «senza nessun attributo»…) e per origine del dato, ordinare per codice o per nome, mostrare anche la
 descrizione originale, e vedere in «Copertura degli attributi» quanti articoli hanno un valore per ciascun attributo.
 
+## Pagina web su una VPS (Linux)
+
+La pagina è in sola lettura e non mostra prezzi, ma i dati sono del lavoro: su un server va **sempre** protetta da password
+(il server non parte se ascolta fuori da 127.0.0.1 senza `WEB_PASSWORD`). File pronti: `avvia_web.sh`,
+`deploy/db-serio-web.service` (systemd), `deploy/nginx-db-serio.conf` (HTTPS con nginx + certbot).
+
+1. **Sulla VPS** (Debian/Ubuntu): `sudo apt install postgresql python3 python3-pip git`, poi il progetto in `/opt/db_serio`
+   (`git clone …` oppure copia della cartella) e `python3 -m pip install -r requirements.txt`
+   (su Debian 12+/Ubuntu 23+ serve un ambiente virtuale: `python3 -m venv .venv && .venv/bin/pip install -r requirements.txt`,
+   che `avvia_web.sh` usa da solo se c'è).
+2. **I dati** non sono su git: si copia il database dal PC.
+   * sul PC: `pg_dump -U postgres -Fc db_serio_finale -f db_serio_finale.dump`
+   * copia: `scp db_serio_finale.dump utente@vps:/tmp/`
+   * sulla VPS: `sudo -u postgres createdb db_serio_finale` e `sudo -u postgres pg_restore -d db_serio_finale --no-owner /tmp/db_serio_finale.dump`
+   * per aggiornarli dopo un catalogo nuovo: stesso dump, poi `pg_restore --clean --if-exists -d db_serio_finale …` e riavvio del servizio.
+   * consigliato: un utente PostgreSQL di sola lettura per la pagina (`CREATE USER web PASSWORD '…'; GRANT CONNECT ON DATABASE db_serio_finale TO web; GRANT USAGE ON SCHEMA public TO web; GRANT SELECT ON ALL TABLES IN SCHEMA public TO web;`) e nel `.env` `PGUSER=web`, `PGPASSWORD=…`.
+3. **Il file `.env`** sulla VPS (da `.env.example`): `PGDATABASE`, `PGHOST=localhost`, `PGUSER`, `PGPASSWORD`, e
+   `WEB_UTENTE`, `WEB_PASSWORD`, `WEB_PORTA=8001`; `WEB_HOST=127.0.0.1` con nginx davanti (consigliato), oppure
+   `WEB_HOST=0.0.0.0` per aprire direttamente la porta (allora `sudo ufw allow 8001/tcp`; la password viaggia in chiaro).
+4. **Prova a mano**: `bash avvia_web.sh` → deve scrivere quanti articoli ha letto. Controllo: `curl http://127.0.0.1:8001/salute` → `ok`.
+5. **Avvio automatico**: in `deploy/db-serio-web.service` cambia `User=` e `WorkingDirectory=`, poi
+   `sudo cp deploy/db-serio-web.service /etc/systemd/system/ && sudo systemctl daemon-reload && sudo systemctl enable --now db-serio-web`
+   (messaggi: `journalctl -u db-serio-web -f`).
+6. **HTTPS** (consigliato): `sudo apt install nginx certbot python3-certbot-nginx`, poi i passi scritti in `deploy/nginx-db-serio.conf`.
+
 ## Più cataloghi, nomeV2, famiglie, lavoro in collaborazione
 
 * **Un modulo per catalogo**: `arricchimento/cataloghi/<nome>.py` (nome = catalogo in minuscolo, non alfanumerici → `_`).
   Senza modulo si usa `generico.py`. Per un catalogo nuovo copia `_modello.py`. `arricchisci.py --catalogo "Nome"` lo carica da solo.
 * **nomeV2** = nomeV1 senza le informazioni già presenti come attributo (calcolato da `arricchimento/v2.py`, colonna `materiale.nomev2`).
-* **Famiglie**: tabella `famiglia` + `materiale.famiglia_id`. `proponi_famiglie.py` raggruppa per nomeV2 uguale; la scelta finale è umana.
+* **Famiglie**: tabella `famiglia` + `materiale.famiglia_id`. `proponi_famiglie.py` raggruppa per nomeV2 uguale; `unisci_famiglie.py` mette nella stessa famiglia i tipi di prodotto uguali di cataloghi diversi (regole in `arricchimento/famiglie_comuni.py`); la scelta finale è umana. Nella pagina web (http://localhost:8001) le famiglie sono schede: clic su una per vederne gli articoli e filtrarli per attributo; quelle in comune tra cataloghi hanno l'etichetta «in N cataloghi». Gli attributi candidati hanno una pagina a parte.
 * **Attributi candidati** (`attributo_candidato`): testi ripetuti nel nomeV2, proposti da `proponi_attributi.py`, da approvare (→ nomeV3).
 * **Passaggio dei risultati**: `esporta.py --catalogo "Nome"` crea `esportazioni/<nome>.json.gz` (niente prezzi);
   chi tiene il DB principale importa lo stesso CSV con `import_catalogo.py` e poi `importa_risultati.py <file> [--prova]`.

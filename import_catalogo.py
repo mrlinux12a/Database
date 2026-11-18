@@ -158,11 +158,36 @@ def rapporto(righe, linee):
     return tenute, avvisi
 
 
+def trova_csv(nome, solo_filtrati=False):
+    """`nome` puo' essere un percorso, oppure solo il nome del file (con o senza .csv): in tal caso si cerca nella cartella
+    CARTELLA_CATALOGHI (variabile in .env), poi in ORIGINE/cataloghi.
+    Con `solo_filtrati` (opzione --tutto) si cerca SOLO in CARTELLA_CATALOGHI: in ORIGINE/cataloghi ci sono i CSV completi,
+    non filtrati, con lo stesso nome, e importarli per sbaglio darebbe articoli che non vanno tenuti."""
+    if os.path.isfile(nome):
+        return nome
+    cart = os.environ.get("CARTELLA_CATALOGHI")
+    if solo_filtrati:
+        if not cart or not os.path.isdir(cart):
+            raise ErroreImport("Con --tutto serve la cartella dei CSV filtrati: imposta CARTELLA_CATALOGHI nel file .env "
+                               "(oggi vale %r e non e' una cartella esistente)." % (cart,))
+        cartelle = [cart]
+    else:
+        cartelle = [c for c in (cart, os.path.join(ORIGINE, "cataloghi")) if c]
+    for cartella in cartelle:
+        for cand in (nome, nome + ".csv"):
+            p = os.path.join(cartella, cand)
+            if os.path.isfile(p):
+                return p
+    raise ErroreImport("File %r non trovato (cercato in: %s). Imposta CARTELLA_CATALOGHI nel file .env."
+                       % (nome, ", ".join(cartelle) or "nessuna cartella"))
+
+
 def connetti():
     try:
         return psycopg2.connect(dbname=os.environ.get("PGDATABASE", "db_serio_finale"),
                                 host=os.environ.get("PGHOST", "localhost"),
-                                user=os.environ.get("PGUSER", "postgres"))
+                                user=os.environ.get("PGUSER", "postgres"),
+                                password=os.environ.get("PGPASSWORD") or None)
     except Exception as e:         # (il testo dell'errore di Windows puo' avere accenti illeggibili)
         raise ErroreImport("Non riesco a collegarmi a PostgreSQL (database %s): verifica che sia acceso e che il "
                            "database esista. Dettaglio: %r" % (os.environ.get("PGDATABASE", "db_serio_finale"), e))
@@ -175,13 +200,20 @@ def main():
     ap.add_argument("--excel", default=EXCEL_DEFAULT)
     ap.add_argument("--brand", default=BRAND_DEFAULT)
     ap.add_argument("--prova", action="store_true")
+    ap.add_argument("--tutto", action="store_true",
+                    help="CSV gia' filtrato: importa tutte le righe, senza Excel (--csv puo' essere solo il nome del file)")
     a = ap.parse_args()
+    a.csv = trova_csv(a.csv, solo_filtrati=a.tutto)
     catalogo = os.path.splitext(os.path.basename(a.csv))[0]
 
     righe = leggi_csv(a.csv)
-    linee = linee_excel(a.excel, a.brand)
-    print("CSV:   %s (%d articoli)\nExcel: %s (brand %s)" % (a.csv, len(righe), a.excel, a.brand))
-    tenute, avvisi = rapporto(righe, linee)
+    if a.tutto:
+        print("CSV:   %s (%d articoli), importo tutte le righe (file gia' filtrato)" % (a.csv, len(righe)))
+        tenute, avvisi = righe, []
+    else:
+        linee = linee_excel(a.excel, a.brand)
+        print("CSV:   %s (%d articoli)\nExcel: %s (brand %s)" % (a.csv, len(righe), a.excel, a.brand))
+        tenute, avvisi = rapporto(righe, linee)
 
     codici = collections.Counter(r["Codice"] for r in righe)
     doppi = [c for c, n in codici.items() if n > 1]

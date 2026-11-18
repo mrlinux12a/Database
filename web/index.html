@@ -3,297 +3,876 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Articoli e attributi – db_serio_finale</title>
+<title>Catalogo materiali</title>
 <style>
   :root {
-    --bg: #f6f7f9; --card: #ffffff; --testo: #1b1f24; --tenue: #5d6773; --linea: #e2e6ea;
-    --accento: #0b5cad; --riga: #f1f5fa;
-    --desc-bg: #e9edf1; --desc-t: #47525e;
-    --cod-bg: #e3eaf7; --cod-t: #2d4a80;
-    --sito-bg: #dcf2e4; --sito-t: #1c6a3a;
-    --web-bg: #fde9cc; --web-t: #84470a;
+    --bg: #f4f5f7; --card: #ffffff; --testo: #15181c; --tenue: #5b6470; --tenue2: #6b7480; --linea: #e3e6ea; --linea2: #d3d8de;
+    --accento: #2f54c8; --accento-t: #ffffff; --accento-bg: #e9eefc; --accento-bg2: #dbe4fb;
+    --riga: #f7f8fa; --hover: #f1f4fb; --ombra: 0 1px 2px rgba(16,24,40,.05), 0 1px 3px rgba(16,24,40,.06);
+    --ombra2: 0 6px 20px rgba(16,24,40,.10); --mark: #fff1b8;
+    --ok-bg: #dcf2e4; --ok-t: #1b6638; --no-bg: #f1f2f4; --no-t: #5b6470; --pro-bg: #fdf0d5; --pro-t: #81500b;
+    --l-tile: 93%; --l-tile-t: 30%; --s-tile: 62%;
   }
   @media (prefers-color-scheme: dark) {
-    :root { --bg: #14171b; --card: #1d2227; --testo: #e6e9ed; --tenue: #98a2ae; --linea: #2f363d;
-            --accento: #6cb0ff; --riga: #232a31;
-            --desc-bg: #2b3239; --desc-t: #b4bdc7;
-            --cod-bg: #26344d; --cod-t: #a9c3f2;
-            --sito-bg: #1f3a2a; --sito-t: #8ad3a4;
-            --web-bg: #4a3318; --web-t: #f0c27e; }
+    :root { --bg: #121417; --card: #1b1e23; --testo: #e7eaee; --tenue: #a1aab5; --tenue2: #8f99a4; --linea: #2b3036; --linea2: #3a4048;
+            --accento: #7d9cff; --accento-t: #0f1420; --accento-bg: #222b45; --accento-bg2: #2a3558;
+            --riga: #20242a; --hover: #232a38; --ombra: 0 1px 2px rgba(0,0,0,.3); --ombra2: 0 8px 24px rgba(0,0,0,.45); --mark: #5a4a10;
+            --ok-bg: #1d3a28; --ok-t: #8fd6a8; --no-bg: #2a2e34; --no-t: #a1aab5; --pro-bg: #463415; --pro-t: #f1c47a;
+            --l-tile: 24%; --l-tile-t: 82%; --s-tile: 35%; }
   }
   * { box-sizing: border-box; }
+  html { scroll-padding-top: 80px; }
   body { margin: 0; background: var(--bg); color: var(--testo);
-         font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-  main { max-width: 1060px; margin: 0 auto; padding: 24px 16px 48px; }
-  h1 { font-size: 22px; margin: 0 0 4px; }
-  .sotto { color: var(--tenue); margin: 0 0 16px; min-height: 1.45em; }
+         font: 15px/1.5 Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: var(--accento); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  button, input, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--accento); outline-offset: 2px; }
+  .mono { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 12.5px; }
+  .tenue { color: var(--tenue); }
+  .svg { width: 16px; height: 16px; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-  .barra { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
-  input[type=search], select { padding: 9px 12px; font: inherit; color: inherit; background: var(--card);
-         border: 1px solid var(--linea); border-radius: 8px; }
-  input[type=search] { flex: 1 1 280px; min-width: 0; }
-  input[type=search]::-webkit-search-cancel-button { display: none; }
-  select { max-width: 100%; }
-  input:focus, select:focus { outline: 2px solid var(--accento); outline-offset: -1px; }
-  button { font: inherit; color: inherit; background: var(--card); border: 1px solid var(--linea);
-           border-radius: 8px; padding: 8px 14px; cursor: pointer; }
-  button:hover:not(:disabled) { border-color: var(--accento); color: var(--accento); }
-  button:disabled { opacity: .45; cursor: default; }
-  .opzioni { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; margin: 0 0 8px; color: var(--tenue); font-size: 13.5px; }
-  .opzioni label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
-  .legenda { margin: 0 0 14px; color: var(--tenue); font-size: 13px; }
+  /* ---- testata ---- */
+  .top { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--card) 92%, transparent);
+         backdrop-filter: saturate(1.4) blur(8px); border-bottom: 1px solid var(--linea); }
+  .top-in { max-width: 1400px; margin: 0 auto; padding: 0 20px; height: 60px; display: flex; align-items: center; gap: 24px; }
+  .marchio { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; color: var(--testo); letter-spacing: -.01em; }
+  .marchio:hover { text-decoration: none; }
+  .marchio .logo { width: 30px; height: 30px; border-radius: 8px; background: var(--accento); color: var(--accento-t);
+                   display: grid; place-items: center; }
+  .marchio .logo .svg { width: 18px; height: 18px; }
+  nav.schede { display: flex; gap: 4px; height: 100%; }
+  nav.schede a { display: flex; align-items: center; gap: 8px; padding: 0 12px; color: var(--tenue); font-weight: 500;
+                 border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  nav.schede a:hover { color: var(--testo); text-decoration: none; }
+  nav.schede a.attiva { color: var(--testo); border-bottom-color: var(--accento); }
+  .conta { font-size: 11.5px; font-weight: 600; background: var(--riga); border: 1px solid var(--linea); color: var(--tenue);
+           border-radius: 999px; padding: 0 7px; line-height: 18px; }
+  nav.schede a.attiva .conta { background: var(--accento-bg); color: var(--accento); border-color: transparent; }
+  .top .destra { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .top label { font-size: 13px; color: var(--tenue); }
+  select { padding: 7px 30px 7px 11px; background: var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23808a96' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;
+           border: 1px solid var(--linea2); border-radius: 8px; appearance: none; cursor: pointer; max-width: 100%; }
 
-  .tag { display: inline-block; font-size: 10.5px; line-height: 1.55; padding: 0 7px; border-radius: 999px;
-         text-decoration: none; vertical-align: 1px; white-space: nowrap; margin-left: 2px; }
-  .tag.descrizione { background: var(--desc-bg); color: var(--desc-t); }
-  .tag.codice { background: var(--cod-bg); color: var(--cod-t); }
-  .tag.sito { background: var(--sito-bg); color: var(--sito-t); }
-  .tag.web { background: var(--web-bg); color: var(--web-t); }
-  a.tag:hover { text-decoration: underline; }
+  main { max-width: 1400px; margin: 0 auto; padding: 28px 20px 64px; }
+  h1 { font-size: 26px; line-height: 1.25; letter-spacing: -.02em; margin: 0; }
+  .sotto { color: var(--tenue); margin: 6px 0 0; }
 
-  details.copertura { background: var(--card); border: 1px solid var(--linea); border-radius: 10px; margin-bottom: 14px; }
-  details.copertura summary { cursor: pointer; padding: 10px 14px; font-weight: 600; }
-  details.copertura .corpo { padding: 0 14px 12px; overflow-x: auto; }
-  .copertura table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-  .copertura th, .copertura td { text-align: left; padding: 5px 8px; border-top: 1px solid var(--linea); vertical-align: middle; }
-  .copertura th { font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--tenue); border-top: 0; }
-  .copertura td.n { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
-  .copertura tr.zero td { color: var(--tenue); }
-  .copertura .barra-n { display: inline-block; height: 7px; border-radius: 4px; background: var(--accento); opacity: .55;
-         vertical-align: middle; margin-left: 8px; }
-  .copertura button.testo { border: 0; padding: 0; background: none; color: var(--accento); text-align: left; cursor: pointer; }
-  .copertura button.testo:hover { text-decoration: underline; }
-  .copertura button.testo:disabled { color: var(--tenue); text-decoration: none; opacity: 1; cursor: default; }
+  /* ---- campi e bottoni ---- */
+  .cerca { position: relative; display: flex; align-items: center; }
+  .cerca .svg { position: absolute; left: 12px; color: var(--tenue2); pointer-events: none; }
+  .cerca input { width: 100%; padding: 9px 12px 9px 38px; background: var(--card); border: 1px solid var(--linea2); border-radius: 10px; }
+  .cerca input:focus { outline: none; border-color: var(--accento); box-shadow: 0 0 0 3px var(--accento-bg); }
+  .cerca input::-webkit-search-cancel-button { cursor: pointer; }
+  .cerca.grande input { padding: 14px 16px 14px 46px; font-size: 16px; border-radius: 12px; box-shadow: var(--ombra); }
+  .cerca.grande .svg { left: 16px; width: 20px; height: 20px; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 8px; border: 1px solid var(--linea2);
+         background: var(--card); cursor: pointer; font-weight: 500; font-size: 14px; white-space: nowrap; }
+  .btn:hover:not(:disabled) { border-color: var(--accento); color: var(--accento); text-decoration: none; }
+  .btn:disabled { opacity: .45; cursor: default; }
+  .btn.piatto { border-color: transparent; background: none; color: var(--accento); padding: 6px 8px; }
+  .btn.piatto:hover { background: var(--accento-bg); }
+  .btn.primario { background: var(--accento); border-color: var(--accento); color: var(--accento-t); }
+  .btn.primario:hover { filter: brightness(1.08); color: var(--accento-t); }
+  .segmenti { display: inline-flex; padding: 3px; gap: 2px; background: var(--riga); border: 1px solid var(--linea); border-radius: 10px; }
+  .segmenti button { border: 0; background: none; padding: 5px 11px; border-radius: 7px; cursor: pointer; color: var(--tenue);
+                     font-size: 13.5px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; }
+  .segmenti button:hover { color: var(--testo); }
+  .segmenti button[aria-pressed="true"] { background: var(--card); color: var(--testo); box-shadow: var(--ombra); }
+  .segmenti button small { color: var(--tenue2); font-weight: 400; }
 
-  .art { background: var(--card); border: 1px solid var(--linea); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
-  .testa { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
-  .cod { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; background: var(--riga);
-         border: 1px solid var(--linea); border-radius: 6px; padding: 1px 8px; word-break: break-all; }
-  .nome { flex: 1 1 320px; font-size: 15.5px; font-weight: 600; margin: 0; }
-  .nome2 { margin: 4px 0 0; color: var(--tenue); font-size: 13.5px; }
-  .descr { display: none; margin: 6px 0 0; color: var(--tenue); font-size: 13px; }
-  body.con-descr .descr { display: block; }
-  .nessuno { margin: 8px 0 0; color: var(--tenue); font-size: 13.5px; }
-  .attr { display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 8px 18px; margin: 10px 0 0; }
-  .attr > div { min-width: 0; }
-  dt { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--tenue); cursor: help; }
-  dd { margin: 0; overflow-wrap: anywhere; }
+  /* ---- pagina famiglie ---- */
+  .eroe { display: grid; gap: 18px; margin-bottom: 22px; }
+  .eroe .cerca { max-width: 720px; }
+  .barra-fam { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-bottom: 16px; }
+  .barra-fam .info { color: var(--tenue); font-size: 14px; margin-right: auto; }
+  .avviso { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; background: var(--accento-bg); border-radius: 12px;
+            padding: 12px 16px; margin-bottom: 16px; }
+  .avviso[hidden] { display: none; }
+  .avviso p { margin: 0; margin-right: auto; }
+  .griglia { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+  a.fam { display: flex; flex-direction: column; gap: 12px; background: var(--card); border: 1px solid var(--linea); border-radius: 14px;
+          padding: 16px; color: var(--testo); box-shadow: var(--ombra); transition: transform .12s, box-shadow .12s, border-color .12s; min-height: 148px; }
+  a.fam:hover { text-decoration: none; transform: translateY(-2px); box-shadow: var(--ombra2); border-color: var(--linea2); }
+  .fam .testa { display: flex; align-items: flex-start; gap: 12px; }
+  .tile { width: 40px; height: 40px; border-radius: 10px; flex: none; display: grid; place-items: center; font-weight: 700; font-size: 15px;
+          background: hsl(var(--h) var(--s-tile) var(--l-tile)); color: hsl(var(--h) 50% var(--l-tile-t)); letter-spacing: -.02em; }
+  .fam h2 { font-size: 15.5px; line-height: 1.3; margin: 1px 0 2px; font-weight: 600; overflow-wrap: anywhere; }
+  .fam .n { font-size: 13px; color: var(--tenue); }
+  .fam .n b { color: var(--testo); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .fam .attr { display: flex; flex-wrap: wrap; gap: 5px; margin-top: auto; }
+  .pill { font-size: 12px; line-height: 20px; padding: 0 8px; border-radius: 999px; background: var(--riga); border: 1px solid var(--linea);
+          color: var(--tenue); white-space: nowrap; }
+  .pill.blu { background: var(--accento-bg); border-color: transparent; color: var(--accento); }
+  .fam .piede { font-size: 12px; color: var(--tenue2); }
+  a.fam.senza { border-style: dashed; box-shadow: none; background: transparent; }
+  .vuoto { padding: 48px 16px; text-align: center; color: var(--tenue); background: var(--card); border: 1px dashed var(--linea2); border-radius: 14px; }
 
-  .vuoto { padding: 28px 14px; text-align: center; color: var(--tenue); background: var(--card);
-           border: 1px solid var(--linea); border-radius: 10px; }
-  .pager { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; }
-  .pager span { color: var(--tenue); }
+  /* ---- pagina articoli (famiglia o ricerca) ---- */
+  .briciole { display: flex; align-items: center; gap: 6px; font-size: 13.5px; color: var(--tenue); margin-bottom: 10px; }
+  .briciole .svg { width: 14px; height: 14px; }
+  .testa-art { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 24px; margin-bottom: 18px; }
+  .testa-art > div:first-child { flex: 1 1 400px; min-width: 0; }
+  .comuni { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; align-items: center; }
+  .comuni .lbl { font-size: 12.5px; color: var(--tenue); margin-right: 2px; }
+  .comuni .pill b { color: var(--testo); font-weight: 600; }
+  .layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 20px; align-items: start; }
+  aside.filtri { position: sticky; top: 78px; max-height: calc(100vh - 92px); overflow: auto; background: var(--card);
+                 border: 1px solid var(--linea); border-radius: 14px; box-shadow: var(--ombra);
+                 scrollbar-width: none; -ms-overflow-style: none; overscroll-behavior: contain; }
+  aside.filtri::-webkit-scrollbar { display: none; }
+  .filtri .intesta { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 10px; position: sticky; top: 0;
+                     background: var(--card); z-index: 1; }
+  .filtri .intesta h2 { font-size: 14px; margin: 0; display: flex; align-items: center; gap: 8px; }
+  .filtri .ricerca { padding: 0 16px 12px; border-bottom: 1px solid var(--linea); }
+  .filtri .ricerca .cerca input { padding-top: 7px; padding-bottom: 7px; font-size: 14px; }
+  details.gruppo { border-bottom: 1px solid var(--linea); }
+  details.gruppo:last-child { border-bottom: 0; }
+  details.gruppo summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 11px 16px;
+                           font-weight: 600; font-size: 13.5px; user-select: none; }
+  details.gruppo summary::-webkit-details-marker { display: none; }
+  details.gruppo summary:hover { background: var(--riga); }
+  details.gruppo summary .chev { margin-left: auto; color: var(--tenue2); transition: transform .15s; width: 14px; height: 14px; }
+  details.gruppo[open] summary .chev { transform: rotate(180deg); }
+  details.gruppo summary small { font-weight: 400; color: var(--tenue2); }
+  details.gruppo summary .sel { background: var(--accento); color: var(--accento-t); border-radius: 999px; font-size: 11px; line-height: 17px;
+                                padding: 0 6px; font-weight: 600; }
+  .gruppo .corpo { padding: 0 10px 12px; }
+  .gruppo .mini input { width: 100%; padding: 5px 9px; font-size: 13px; border: 1px solid var(--linea2); border-radius: 7px;
+                        background: var(--card); margin: 0 6px 6px; width: calc(100% - 12px); }
+  label.opz { display: flex; align-items: center; gap: 9px; padding: 4px 6px; border-radius: 7px; cursor: pointer; font-size: 13.5px; }
+  label.opz:hover { background: var(--hover); }
+  label.opz input { width: 16px; height: 16px; margin: 0; accent-color: var(--accento); flex: none; cursor: pointer; }
+  label.opz .v { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  label.opz .c { font-size: 12px; color: var(--tenue2); font-variant-numeric: tabular-nums; }
+  label.opz.zero { opacity: .5; }
+  .gruppo .altro { margin: 4px 0 0 2px; }
+  .gruppo .nota { font-size: 12px; color: var(--tenue2); margin: 6px 6px 0; }
+  .filtri .nulla { padding: 14px 16px; color: var(--tenue); font-size: 13.5px; margin: 0; }
+
+  .barra-ris { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; margin-bottom: 12px; }
+  .barra-ris .tot { font-size: 15px; margin-right: auto; }
+  .barra-ris .tot b { font-variant-numeric: tabular-nums; }
+  .ordina { display: flex; align-items: center; gap: 6px; font-size: 13.5px; color: var(--tenue); }
+  .btn.icona { padding: 7px; }
+  .attivi { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .attivi:empty { display: none; }
+  .attivi button.chip { display: inline-flex; align-items: center; gap: 6px; border: 0; background: var(--accento-bg); color: var(--accento);
+                        border-radius: 999px; padding: 4px 8px 4px 11px; cursor: pointer; font-size: 13px; font-weight: 500; }
+  .attivi button.chip:hover { background: var(--accento-bg2); }
+  .attivi button.chip .svg { width: 13px; height: 13px; }
+  .attivi button.chip span { color: var(--tenue); font-weight: 400; }
+  .apri-filtri { display: none; }
+
+  .tabella { background: var(--card); border: 1px solid var(--linea); border-radius: 14px; box-shadow: var(--ombra); overflow: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--linea); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: 0; }
+  th { position: sticky; top: 0; background: var(--riga); font-size: 12px; font-weight: 600; color: var(--tenue); white-space: nowrap; z-index: 1; }
+  th button { border: 0; background: none; padding: 0; cursor: pointer; font: inherit; color: inherit; display: inline-flex; align-items: center; gap: 4px; }
+  th button:hover { color: var(--testo); }
+  th button > .svg { width: 12px; height: 12px; opacity: 0; }
+  th button:hover > .svg, th button.attivo > .svg { opacity: 1; }
+  th button.attivo { color: var(--accento); }
+  tbody tr { cursor: pointer; }
+  tbody tr:hover td { background: var(--hover); }
+  td.cod { white-space: nowrap; }
+  td.nome { min-width: 280px; }
+  td.nome button { border: 0; background: none; padding: 0; text-align: left; cursor: pointer; font-weight: 500; color: var(--testo); }
+  td.nome button:hover { color: var(--accento); }
+  td.nome .fam-b { display: block; font-size: 12px; color: var(--tenue); margin-top: 2px; }
+  td.val { min-width: 90px; max-width: 240px; }
+  td.val.corta { white-space: nowrap; }
+  td.val.vuota { color: var(--linea2); }
+  button.v { border: 0; background: none; padding: 0; cursor: pointer; color: inherit; text-align: left; }
+  button.v:hover { color: var(--accento); text-decoration: underline; }
+
+  .lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 14px; }
+  .art { background: var(--card); border: 1px solid var(--linea); border-radius: 14px; padding: 16px 18px; box-shadow: var(--ombra); cursor: pointer;
+         display: flex; flex-direction: column; gap: 10px; transition: border-color .12s, box-shadow .12s; }
+  .art:hover { border-color: var(--linea2); box-shadow: var(--ombra2); }
+  .art .r1 { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; font-size: 12px; color: var(--tenue); }
+  .art .r1 .famb { background: var(--accento-bg); color: var(--accento); border-radius: 999px; padding: 0 8px; line-height: 20px; font-weight: 500; }
+  .art .nomi { display: grid; gap: 6px; padding-bottom: 12px; border-bottom: 1px solid var(--linea); }
+  .art .n2, .art .ds { margin: 0; font-size: 13px; line-height: 1.45; display: flex; gap: 8px; align-items: baseline; }
+  .art .n2 { color: var(--testo); }
+  .art .ds { color: var(--tenue); }
+  .art .etq { flex: none; font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--tenue2);
+              min-width: 78px; }
+  .art .ds span:last-child { font-size: 12.5px; }
+  .codice { background: var(--riga); border: 1px solid var(--linea); border-radius: 6px; padding: 0 7px; color: var(--testo); }
+  .art h3 { font-size: 17px; line-height: 1.35; margin: 2px 0 2px; font-weight: 700; letter-spacing: -.01em; }
+  .art h3 button { all: unset; cursor: pointer; }
+  .art h3 button:hover { color: var(--accento); }
+  .art h3 button:focus-visible { outline: 2px solid var(--accento); outline-offset: 2px; border-radius: 4px; }
+  .art dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; margin: 4px 0 0; }
+  .art dl > div { display: flex; gap: 9px; align-items: flex-start; min-width: 0; }
+  .art dt { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--tenue2); }
+  .art dd { margin: 0; font-size: 13.5px; font-weight: 500; overflow-wrap: anywhere; }
+
+  /* colore e icona per gruppo di attributi */
+  .ic { width: 26px; height: 26px; border-radius: 7px; flex: none; display: grid; place-items: center;
+        background: hsl(var(--h) var(--s-tile) var(--l-tile)); color: hsl(var(--h) 55% var(--l-tile-t)); }
+  .ic .svg { width: 15px; height: 15px; }
+  .ic.pic { width: 20px; height: 20px; border-radius: 6px; }
+  .ic.pic .svg { width: 12px; height: 12px; }
+  .pill.g { display: inline-flex; align-items: center; gap: 4px; border-color: transparent; padding-left: 5px;
+            background: hsl(var(--h) var(--s-tile) var(--l-tile)); color: hsl(var(--h) 50% var(--l-tile-t)); }
+  .pill.g .svg { width: 12px; height: 12px; }
+  th .ic.pic { display: inline-grid; vertical-align: middle; margin-right: 2px; }
+  details.gruppo summary .ic { margin-left: -4px; }
+  .cassetto .campi dt { display: flex; align-items: flex-start; gap: 8px; }
+  .cassetto h3.g { display: flex; align-items: center; gap: 8px; color: hsl(var(--h) 50% var(--l-tile-t)); }
+
+  .pager { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 16px; color: var(--tenue); font-size: 14px; }
+  .carico { opacity: .55; transition: opacity .15s; pointer-events: none; }
+
+  /* ---- dettaglio articolo ---- */
+  .velo { position: fixed; inset: 0; background: rgba(10,14,20,.35); z-index: 40; }
+  .velo[hidden], .cassetto[hidden] { display: none; }
+  .cassetto { position: fixed; top: 0; right: 0; bottom: 0; width: min(520px, 100vw); background: var(--card); z-index: 41;
+              box-shadow: -10px 0 40px rgba(0,0,0,.18); display: flex; flex-direction: column; animation: entra .18s ease-out; }
+  @keyframes entra { from { transform: translateX(24px); opacity: 0; } }
+  .cassetto .barra { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--linea); }
+  .cassetto .barra .tenue { font-size: 13px; margin-right: auto; }
+  .cassetto .corpo { padding: 20px 22px 32px; overflow: auto; }
+  .cassetto h2 { font-size: 19px; line-height: 1.35; margin: 0 0 6px; letter-spacing: -.01em; }
+  .cassetto h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--tenue); margin: 22px 0 8px; }
+  .cassetto .campi { display: grid; grid-template-columns: 130px 1fr; gap: 8px 12px; margin: 0; font-size: 14px; }
+  .cassetto .campi dt { color: var(--tenue); }
+  .cassetto .campi dd { margin: 0; overflow-wrap: anywhere; }
+  .cassetto .orig { display: block; font-size: 11.5px; color: var(--tenue2); }
+  .cassetto .descr { background: var(--riga); border-radius: 10px; padding: 10px 12px; font-size: 13.5px; color: var(--tenue); margin: 0; }
+
+  /* ---- candidati ---- */
+  .barra-cand { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 22px 0 14px; }
+  .barra-cand .cerca { flex: 1 1 280px; max-width: 420px; }
+  td.n { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; width: 1%; }
+  .barretta { display: block; height: 4px; border-radius: 3px; background: var(--accento); opacity: .45; margin-top: 5px; margin-left: auto; }
+  .stato { font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+  .stato.proposto { background: var(--pro-bg); color: var(--pro-t); }
+  .stato.approvato { background: var(--ok-bg); color: var(--ok-t); }
+  .stato.scartato { background: var(--no-bg); color: var(--no-t); }
+  td.testo { font-weight: 600; font-size: 14px; }
+  td.es { min-width: 300px; }
+  td.es .mono { color: var(--tenue); display: block; margin-top: 2px; }
+  mark { background: var(--mark); color: inherit; border-radius: 3px; padding: 0 1px; }
+  .cand tbody tr { cursor: default; }
+
+  @media (max-width: 900px) {
+    .top-in { gap: 14px; height: auto; min-height: 56px; flex-wrap: wrap; padding: 8px 16px 0; }
+    nav.schede { order: 3; width: 100%; height: 44px; }
+    .top .destra label { display: none; }
+    .layout { grid-template-columns: minmax(0, 1fr); }
+    aside.filtri { position: static; max-height: none; display: none; }
+    aside.filtri.aperto { display: block; }
+    .apri-filtri { display: inline-flex; }
+    main { padding-top: 20px; }
+    .cassetto .campi { grid-template-columns: 1fr; gap: 2px; }
+    .cassetto .campi dd { margin-bottom: 8px; }
+  }
 </style>
 </head>
 <body>
-<main>
-  <h1>Articoli Air Control: nome e attributi</h1>
-  <p class="sotto" id="conteggio">Carico…</p>
-
-  <div class="barra">
-    <input type="search" id="q" placeholder="Cerca nel codice, nel nome o in un valore (es. plenum 150, anodizzato, Belimo)" autofocus
-           aria-label="Cerca">
-    <select id="attr" aria-label="Filtra per attributo"><option value="">Tutti gli articoli</option></select>
-    <select id="origine" aria-label="Filtra per origine del dato">
-      <option value="">Qualsiasi origine</option>
-      <option value="descrizione">dalla descrizione</option>
-      <option value="codice">dal codice</option>
-      <option value="sito">dalla scheda del produttore</option>
-      <option value="web">dal web</option>
-    </select>
-    <select id="ordine" aria-label="Ordina per">
-      <option value="codice">Ordina per codice</option>
-      <option value="nome">Ordina per nome</option>
-    </select>
-    <button id="azzera" type="button" hidden>Azzera</button>
+<header class="top">
+  <div class="top-in">
+    <a class="marchio" href="#/famiglie">
+      <span class="logo"><svg class="svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5M12 13v8"/></svg></span>
+      Catalogo materiali
+    </a>
+    <nav class="schede" aria-label="Sezioni">
+      <a href="#/famiglie" data-vista="famiglie">Famiglie</a>
+      <a href="#/candidati" data-vista="candidati">Attributi candidati <span class="conta" id="n-cand" hidden></span></a>
+    </nav>
+    <div class="destra">
+      <label for="catalogo">Catalogo</label>
+      <select id="catalogo"></select>
+    </div>
   </div>
-  <div class="opzioni">
-    <label><input type="checkbox" id="descr"> mostra anche la descrizione originale del catalogo</label>
-  </div>
-  <p class="legenda">Origine di ogni valore:
-    <span class="tag descrizione">descr.</span> testo del catalogo ·
-    <span class="tag codice">codice</span> lettere/cifre del codice ·
-    <span class="tag sito">sito ↗</span> scheda del produttore (vale per la famiglia) ·
-    <span class="tag web">web ↗</span> scheda di un costruttore terzo. Dove non c'è un valore l'attributo non compare.</p>
+</header>
 
-  <details class="copertura" id="copertura">
-    <summary>Copertura degli attributi (quanti articoli hanno un valore)</summary>
-    <div class="corpo"><table>
-      <thead><tr><th>Attributo</th><th>Articoli</th><th>Origine</th></tr></thead>
-      <tbody id="copertura-righe"></tbody>
-    </table></div>
-  </details>
+<main id="vista" aria-live="polite"></main>
 
-  <div id="elenco"></div>
-
-  <div class="pager">
-    <button id="prec" type="button" disabled>‹ Precedente</button>
-    <span id="pagina"></span>
-    <button id="succ" type="button" disabled>Successiva ›</button>
-  </div>
-</main>
+<div class="velo" id="velo" hidden></div>
+<aside class="cassetto" id="cassetto" role="dialog" aria-modal="true" aria-labelledby="det-titolo" hidden></aside>
 
 <script>
-const $ = (s) => document.querySelector(s);
-const fmt = (n) => n.toLocaleString("it-IT");
-const ORIG = {
-  descrizione: ["descr.", "Valore preso dal testo della descrizione del catalogo"],
-  codice: ["codice", "Valore ricavato dalle lettere/cifre del codice fornitore"],
-  sito: ["sito", "Dalla scheda del produttore (aircontrolclima.it): vale per tutta la famiglia di prodotto"],
-  web: ["web", "Da una scheda/pagina di un costruttore terzo trovata sul web"],
-};
-let meta = {}, totali = { totale: 0, con_attributi: 0, senza: 0 };
-let pagina = 1, ultima = 1, ctrl = null, timer = null;
+"use strict";
+const $ = (s, r = document) => r.querySelector(s);
+const fmt = (n) => Number(n).toLocaleString("it-IT");
+const norm = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+const ERRORE_DB = "Impossibile leggere il database. Controlla che PostgreSQL sia acceso e che il server sia avviato.";
 
-function el(tag, classe, testo) {
+/* elemento: h("div", {class: "x", onclick: f}, figli...) */
+function h(tag, props, ...figli) {
   const e = document.createElement(tag);
-  if (classe) e.className = classe;
-  if (testo != null) e.textContent = testo;
+  for (const [k, v] of Object.entries(props || {})) {
+    if (v == null || v === false) continue;
+    if (k === "class") e.className = v;
+    else if (k === "text") e.textContent = v;
+    else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+    else if (k.startsWith("aria-") || k.startsWith("data-") || !(k in e)) e.setAttribute(k, v === true ? "" : v);
+    else e[k] = v;
+  }
+  for (const c of figli.flat(Infinity)) if (c != null && c !== false) e.append(c instanceof Node ? c : String(c));
   return e;
 }
-function etichettaOrigine(orig, fonte, conTesto) {
-  const [t, tip] = ORIG[orig] || [orig, ""];
-  const link = fonte && /^https?:\/\//i.test(fonte);
-  const e = el(link ? "a" : "span", "tag " + orig, link ? t + " ↗" : t);
-  e.title = tip + (link ? "\n" + fonte : "");
-  if (link) { e.href = fonte; e.target = "_blank"; e.rel = "noopener noreferrer"; }
-  return e;
+/* sostituisce il contenuto di un elemento (salta null/false, appiattisce le liste) */
+function riempi(e, ...figli) { e.replaceChildren(...figli.flat(Infinity).filter((c) => c != null && c !== false)); }
+const ICONE = {
+  cerca: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+  x: '<path d="M18 6 6 18M6 6l12 12"/>',
+  giu: '<path d="m6 9 6 6 6-6"/>',
+  dx: '<path d="m9 6 6 6-6 6"/>',
+  sx: '<path d="m15 6-6 6 6 6"/>',
+  tabella: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16"/>',
+  schede: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+  filtro: '<path d="M4 5h16l-6 8v5l-4 2v-7z"/>',
+  su_giu: '<path d="m7 15 5 5 5-5M7 9l5-5 5 5"/>',
+  freccia_su: '<path d="M12 19V5M5 12l7-7 7 7"/>',
+  freccia_giu: '<path d="M12 5v14M5 12l7 7 7-7"/>',
+  esterno: '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+  lista: '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+  righello: '<path d="M3 17 17 3l4 4L7 21z"/><path d="m7.5 12.5 2 2M10.5 9.5l2 2M13.5 6.5l2 2"/>',
+  manometro: '<path d="M3.3 18a10 10 0 1 1 17.4 0"/><path d="m12 14 4-5"/><circle cx="12" cy="14" r="1.5"/>',
+  fulmine: '<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
+  strati: '<path d="m12 2 10 5-10 5L2 7z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/>',
+  attacco: '<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>',
+  scatola: '<path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5M12 13v8"/>',
+  scudo: '<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/>',
+  cursori: '<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>',
+  etichetta: '<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
+  codici: '<path d="M4 5v14M8 5v14M12 5v14M16 5v14M20 5v14"/>',
+  punto: '<circle cx="12" cy="12" r="4"/>',
+};
+/* ogni gruppo di attributi (colonna `gruppo` della tabella attributo) ha un colore (tinta) e un'icona */
+const GRUPPI = {
+  "Dimensioni": ["righello", 215], "Prestazioni": ["manometro", 22], "Elettrico": ["fulmine", 45],
+  "Materiali e finiture": ["strati", 165], "Attacchi": ["attacco", 265], "Confezione": ["scatola", 330],
+  "Normative": ["scudo", 135], "Regolazione": ["cursori", 190], "Uso": ["etichetta", 295], "Codici": ["codici", 230],
+};
+function gruppo(k) { const g = (META[k] || {}).gruppo || "Altro"; return [g, ...(GRUPPI[g] || ["punto", 220])]; }
+function icAttr(k, piccola) {
+  const [g, ic, tinta] = gruppo(k);
+  return h("span", { class: "ic" + (piccola ? " pic" : ""), style: "--h:" + tinta, title: g, "aria-hidden": "true" }, icona(ic));
 }
-
-/* ---- stato dei filtri, tenuto anche nell'indirizzo della pagina ---- */
-function stato() {
-  return { q: $("#q").value.trim(), attr: $("#attr").value, origine: $("#origine").value, ordine: $("#ordine").value };
+function icona(nome, cls) {
+  const s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  s.setAttribute("viewBox", "0 0 24 24"); s.setAttribute("class", "svg" + (cls ? " " + cls : "")); s.setAttribute("aria-hidden", "true");
+  s.innerHTML = ICONE[nome];
+  return s;
 }
-function leggiIndirizzo() {
-  const p = new URLSearchParams(location.search);
-  $("#q").value = p.get("q") || "";
-  $("#origine").value = p.get("origine") || "";
-  $("#ordine").value = p.get("ordine") || "codice";
-  $("#descr").checked = p.get("descr") === "1";
-  document.body.classList.toggle("con-descr", $("#descr").checked);
-  pagina = Math.max(1, parseInt(p.get("pagina") || "1", 10) || 1);
-  return p.get("attr") || "";
+function campoCerca(props, grande) {
+  return h("div", { class: "cerca" + (grande ? " grande" : "") }, icona("cerca"), h("input", { type: "search", autocomplete: "off", ...props }));
 }
-function scriviIndirizzo(s) {
-  const p = new URLSearchParams();
-  if (s.q) p.set("q", s.q);
-  if (s.attr) p.set("attr", s.attr);
-  if (s.origine) p.set("origine", s.origine);
-  if (s.ordine !== "codice") p.set("ordine", s.ordine);
-  if ($("#descr").checked) p.set("descr", "1");
-  if (pagina > 1) p.set("pagina", pagina);
-  try { history.replaceState(null, "", p.toString() ? "?" + p : location.pathname); } catch (e) { /* non importante */ }
+function tinta(testo) { let x = 0; for (const c of testo) x = (x * 31 + c.charCodeAt(0)) % 360; return x; }
+function iniziali(nome) {
+  const p = nome.replace(/[^\p{L}\p{N} ]/gu, " ").split(/\s+/).filter(Boolean);
+  return ((p[0] || "?")[0] + (p[1] ? p[1][0] : (p[0] || "")[1] || "")).toUpperCase();
 }
-
-/* ---- dati ---- */
-async function caricaAttributi(attrIniziale) {
-  const r = await fetch("/api/attributi");
+async function api(percorso, params, signal) {
+  const r = await fetch(percorso + (params ? "?" + params : ""), { signal });
   if (!r.ok) throw new Error("HTTP " + r.status);
-  const d = await r.json();
-  totali = d;
-  meta = Object.fromEntries(d.attributi.map((a) => [a.chiave, a]));
-
-  const sel = $("#attr");
-  sel.replaceChildren(new Option("Tutti gli articoli", ""),
-    new Option("Senza nessun attributo (" + fmt(d.senza) + ")", "__nessuno"),
-    ...d.attributi.filter((a) => a.n > 0).map((a) => new Option("con " + a.breve + " (" + fmt(a.n) + ")", a.chiave)));
-  sel.value = attrIniziale;
-  if (sel.value !== attrIniziale) sel.value = "";
-
-  const max = Math.max(1, ...d.attributi.map((a) => a.n));
-  $("#copertura-righe").replaceChildren(...d.attributi.map((a) => {
-    const tr = el("tr", a.n ? "" : "zero");
-    const c1 = el("td");
-    const b = el("button", "testo", (a.nuovo ? "★ " : "") + a.etichetta);
-    b.type = "button"; b.disabled = !a.n;
-    b.addEventListener("click", () => { $("#attr").value = a.chiave; pagina = 1; carica(); window.scrollTo({ top: 0, behavior: "smooth" }); });
-    c1.append(b);
-    const c2 = el("td", "n", a.n ? fmt(a.n) : "nessuno");
-    if (a.n) { const barra = el("span", "barra-n"); barra.style.width = Math.max(2, Math.round(120 * a.n / max)) + "px"; c2.append(barra); }
-    const c3 = el("td");
-    for (const o of ["descrizione", "codice", "sito", "web"]) {
-      if (a.origini[o]) { const t = etichettaOrigine(o); t.textContent += " " + fmt(a.origini[o]); c3.append(t, " "); }
-    }
-    tr.append(c1, c2, c3);
-    return tr;
-  }));
-  $("#copertura").querySelector("summary").textContent =
-    "Copertura degli attributi (" + d.attributi.filter((a) => a.n).length + " di " + d.attributi.length + " hanno almeno un valore)";
+  return r.json();
 }
 
-async function carica() {
-  if (ctrl) ctrl.abort();                       // una ricerca nuova annulla quella ancora in corso
-  ctrl = new AbortController();
-  const s = stato();
-  $("#azzera").hidden = !(s.q || s.attr || s.origine);
-  scriviIndirizzo(s);
+/* ---------------- dati comuni ---------------- */
+let META = {}, ORDINE = {}, CATALOGHI = [];
+const cache = { famiglie: {}, candidati: {} };
+const etichetta = (k) => (META[k] || {}).breve || k;
+const ORIGINE = { descrizione: "dalla descrizione del catalogo", codice: "dal codice fornitore", sito: "dalla scheda del produttore", web: "da una scheda di terzi" };
+
+async function caricaBase() {
+  const [att, cat] = await Promise.all([api("/api/attributi"), api("/api/cataloghi")]);
+  att.attributi.forEach((a, i) => { META[a.chiave] = a; ORDINE[a.chiave] = i; });
+  CATALOGHI = cat.cataloghi;
+  riempi($("#catalogo"), h("option", { value: "" }, "Tutti i cataloghi"),
+    ...CATALOGHI.map((c) => h("option", { value: c.nome }, c.nome)));
+}
+// Le famiglie e i candidati si tengono in memoria solo per poco: il database cambia mentre la pagina e' aperta
+// (proponi_famiglie, unisci_famiglie...) e i numeri vecchi non devono restare (es. "senza famiglia" diverso dall'elenco).
+const DURATA_CACHE = 20000;
+async function daCache(tipo, catalogo, url) {
+  const c = cache[tipo][catalogo];
+  if (c && Date.now() - c.quando < DURATA_CACHE) return c.dati;
+  const dati = await api(url, new URLSearchParams({ catalogo }));
+  cache[tipo][catalogo] = { dati, quando: Date.now() };
+  return dati;
+}
+async function famiglie(catalogo) { return daCache("famiglie", catalogo, "/api/famiglie"); }
+async function candidati(catalogo) { return daCache("candidati", catalogo, "/api/candidati"); }
+document.addEventListener("visibilitychange", () => {          // tornando sulla pagina si rileggono i dati
+  if (document.hidden) return;
+  cache.famiglie = {}; cache.candidati = {};
+  api("/api/cataloghi").then((c) => { CATALOGHI = c.cataloghi; aggiornaContaCandidati(); }).catch(() => {});
+});
+
+/* ---------------- indirizzo (#/vista/id?parametri) ---------------- */
+let CATALOGO = "";
+function leggiHash() {
+  const [percorso, qs] = location.hash.replace(/^#/, "").split("?");
+  const parti = percorso.split("/").filter(Boolean).map(decodeURIComponent);
+  return { vista: parti[0] || "famiglie", id: parti[1] || "", p: new URLSearchParams(qs || "") };
+}
+function indirizzo(vista, id, p) {
+  const q = new URLSearchParams(p || {});
+  if (CATALOGO) q.set("catalogo", CATALOGO); else q.delete("catalogo");
+  for (const [k, v] of [...q]) if (v === "") q.delete(k);
+  const s = q.toString();
+  return "#/" + vista + (id ? "/" + encodeURIComponent(id) : "") + (s ? "?" + s : "");
+}
+function vai(hash, sostituisci) {
+  if (hash === location.hash) return;
+  if (sostituisci) { history.replaceState(null, "", hash); instrada(); }
+  else location.hash = hash;
+}
+
+let ultimaVista = "";
+async function instrada() {
+  const { vista, id, p } = leggiHash();
+  CATALOGO = p.get("catalogo") || "";
+  $("#catalogo").value = CATALOGO;
+  if ($("#catalogo").value !== CATALOGO) { CATALOGO = ""; $("#catalogo").value = ""; }
+  for (const a of document.querySelectorAll("nav.schede a")) {
+    const attiva = a.dataset.vista === (vista === "candidati" ? "candidati" : "famiglie");
+    a.classList.toggle("attiva", attiva);
+    if (attiva) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+    a.href = indirizzo(a.dataset.vista);
+  }
+  aggiornaContaCandidati();
+  const chiave = vista + "/" + id + "/" + CATALOGO;
+  const nuova = chiave !== ultimaVista;
+  ultimaVista = chiave;
+  if (nuova) { chiudiDettaglio(); if (A.ctrl) A.ctrl.abort(); }
   try {
-    const r = await fetch("/api/articoli?" + new URLSearchParams({ ...s, pagina }), { signal: ctrl.signal });
-    if (!r.ok) throw new Error("HTTP " + r.status);
-    disegna(await r.json(), s);
+    if (vista === "famiglia" || vista === "cerca") await vistaArticoli(vista, id, p, nuova);
+    else if (vista === "candidati") await vistaCandidati(p, nuova);
+    else await vistaFamiglie(p, nuova);
   } catch (e) {
-    if (e.name === "AbortError") return;
-    $("#elenco").replaceChildren(el("div", "vuoto", "Impossibile leggere il database. Controlla che PostgreSQL sia acceso."));
-    $("#conteggio").textContent = "";
+    if (e.name !== "AbortError") { console.error(e); ultimaVista = ""; riempi($("#vista"), h("div", { class: "vuoto" }, ERRORE_DB)); }
   }
+  if (nuova) window.scrollTo({ top: 0 });
+}
+function aggiornaContaCandidati() {
+  const sel = CATALOGO ? CATALOGHI.filter((c) => c.nome === CATALOGO) : CATALOGHI;
+  const n = sel.reduce((a, c) => a + (c.candidati || 0), 0);
+  const b = $("#n-cand");
+  b.hidden = !n; b.textContent = fmt(n); b.title = n + " da valutare";
 }
 
-function scheda(a) {
-  const art = el("article", "art");
-  const testa = el("header", "testa");
-  testa.append(el("span", "cod", a.cod), el("h2", "nome", a.nome || a.descr));
-  art.append(testa, el("p", "nome2", "nomeV2: " + (a.nome2 || "")), el("p", "descr", "Descrizione del catalogo: " + a.descr));
-  if (!a.attr.length) {
-    art.append(el("p", "nessuno", "Nessun attributo trovato per questo articolo."));
-    return art;
+/* ================= FAMIGLIE ================= */
+async function vistaFamiglie(p, nuova) {
+  const q = p.get("q") || "", ordine = p.get("ordine") || "n", soloComuni = p.get("comuni") === "1";
+  const d = await famiglie(CATALOGO);
+  let input = $("#cerca-fam");
+  if (nuova || !input) {
+    input = h("input", { type: "search", id: "cerca-fam", autocomplete: "off", value: q, "aria-label": "Cerca",
+      placeholder: "Cerca una famiglia, oppure un articolo per codice, nome o valore…" });
+    let t;
+    input.addEventListener("input", () => { clearTimeout(t); t = setTimeout(() => {
+      const pp = leggiHash().p;
+      vai(indirizzo("famiglie", "", { q: input.value.trim(), ordine: pp.get("ordine") || "", comuni: pp.get("comuni") || "" }), true);
+    }, 180); });
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter" && input.value.trim()) vai(indirizzo("cerca", "", { q: input.value.trim() })); });
+    riempi($("#vista"), 
+      h("section", { class: "eroe" },
+        h("div", null, h("h1", null, "Famiglie di prodotto"),
+          h("p", { class: "sotto" }, "Scegli una famiglia per vedere i suoi articoli e restringere la ricerca con gli attributi.")),
+        h("div", { class: "cerca grande" }, icona("cerca"), input)),
+      h("div", { class: "avviso", id: "avviso", hidden: true }),
+      h("div", { class: "barra-fam", id: "barra-fam" }),
+      h("div", { class: "griglia", id: "griglia" }));
   }
-  const dl = el("dl", "attr");
-  for (const [chiave, valore, orig, fonte] of a.attr) {
-    const m = meta[chiave] || { breve: chiave, etichetta: chiave, nuovo: false };
-    const box = el("div");
-    const dt = el("dt", null, m.breve);
-    dt.title = m.etichetta + (m.nuovo ? " (attributo nuovo ★)" : "");
-    const dd = el("dd");
-    dd.append(valore, " ", etichettaOrigine(orig, fonte));
-    box.append(dt, dd);
-    dl.append(box);
+  function parametri(cambi) {
+    const s = { q, ordine: ordine === "n" ? "" : ordine, comuni: soloComuni ? "1" : "", ...cambi };
+    return s;
   }
-  art.append(dl);
-  return art;
+
+  const parole = norm(q).split(/\s+/).filter(Boolean);
+  let lista = d.famiglie.filter((f) => parole.every((w) => norm(f.nome).includes(w)) && (!soloComuni || f.comune));
+  if (ordine === "az") lista = [...lista].sort((a, b) => a.nome.localeCompare(b.nome, "it"));
+  const nComuni = d.famiglie.filter((f) => f.comune).length;
+
+  const seg = (val, testo) => h("button", { type: "button", "aria-pressed": String(ordine === val),
+    onclick: () => vai(indirizzo("famiglie", "", parametri({ ordine: val === "n" ? "" : val })), true) }, testo);
+  riempi($("#barra-fam"), 
+    h("span", { class: "info" }, q ? fmt(lista.length) + " famiglie su " + fmt(d.famiglie.length)
+      : fmt(d.famiglie.length) + " famiglie · " + fmt(d.totale) + " articoli"),
+    nComuni ? h("label", { class: "opz", style: "font-size:13.5px" },
+      h("input", { type: "checkbox", checked: soloComuni, onchange: (e) => vai(indirizzo("famiglie", "", parametri({ comuni: e.target.checked ? "1" : "" })), true) }),
+      "Solo in comune tra cataloghi (" + nComuni + ")") : null,
+    h("div", { class: "segmenti", role: "group", "aria-label": "Ordina le famiglie" }, seg("n", "Più articoli"), seg("az", "A–Z")));
+
+  const schede = lista.map(schedaFamiglia);
+  if (d.senza_famiglia && !q && !soloComuni) schede.push(h("a", { class: "fam senza", href: indirizzo("famiglia", "senza") },
+    h("div", { class: "testa" }, h("div", { class: "tile", style: "--h:220" }, "?"),
+      h("div", null, h("h2", null, "Senza famiglia"), h("div", { class: "n" }, h("b", null, fmt(d.senza_famiglia)), " articoli"))),
+    h("div", { class: "piede" }, "Articoli a cui non è ancora stata assegnata una famiglia")));
+  riempi($("#griglia"), ...(schede.length ? schede
+    : [h("div", { class: "vuoto", style: "grid-column:1/-1" }, "Nessuna famiglia con questo nome. Premi Invio per cercare tra gli articoli.")]));
+
+  // con un testo nella ricerca: quanti articoli lo contengono (in tutte le famiglie)
+  const avviso = $("#avviso");
+  if (!q) { avviso.hidden = true; return; }
+  const par = new URLSearchParams({ q }); if (CATALOGO) par.set("catalogo", CATALOGO);
+  const r = await api("/api/articoli", par);
+  if (input.value.trim() !== q) return;
+  avviso.hidden = false;
+  riempi(avviso, 
+    h("p", null, r.totale ? [h("b", null, fmt(r.totale)), (r.totale === 1 ? " articolo contiene " : " articoli contengono ") + "«" + q + "»"]
+      : "Nessun articolo contiene «" + q + "»"),
+    r.totale ? h("a", { class: "btn primario", href: indirizzo("cerca", "", { q }) }, "Vedi gli articoli", icona("dx")) : null);
 }
 
-function disegna(d, s) {
-  pagina = d.pagina; ultima = d.pagine;
-  const filtro = s.q || s.attr || s.origine;
-  $("#conteggio").textContent = (filtro
-      ? fmt(d.totale) + (d.totale === 1 ? " articolo trovato" : " articoli trovati") + " su " + fmt(totali.totale)
-      : fmt(d.totale) + " articoli")
-    + " · " + fmt(totali.con_attributi) + " hanno almeno un attributo, " + fmt(totali.senza) + " nessuno";
-  $("#elenco").replaceChildren(...(d.righe.length ? d.righe.map(scheda) : [el("div", "vuoto", "Nessun articolo trovato.")]));
-  $("#pagina").textContent = "Pagina " + fmt(pagina) + " di " + fmt(ultima);
-  $("#prec").disabled = pagina <= 1;
-  $("#succ").disabled = pagina >= ultima;
+function schedaFamiglia(f) {
+  const attr = f.attributi.slice(0, 4);
+  const altri = f.attributi.length - attr.length;
+  const altriCat = Object.keys(f.cataloghi).filter((c) => c !== CATALOGO);
+  return h("a", { class: "fam", href: indirizzo("famiglia", f.id) },
+    h("div", { class: "testa" },
+      h("div", { class: "tile", style: "--h:" + tinta(f.nome), "aria-hidden": "true" }, iniziali(f.nome)),
+      h("div", null, h("h2", null, f.nome), h("div", { class: "n" }, h("b", null, fmt(f.n)), f.n === 1 ? " articolo" : " articoli"))),
+    f.attributi.length ? h("div", { class: "attr", title: "Attributi con cui restringere: " + f.attributi.map((a) => etichetta(a.chiave)).join(", ") },
+      attr.map((a) => { const [, ic, t] = gruppo(a.chiave); return h("span", { class: "pill g", style: "--h:" + t }, icona(ic), etichetta(a.chiave)); }), altri > 0 ? h("span", { class: "pill" }, "+" + altri) : null)
+      : h("div", { class: "piede" }, "Articoli senza attributi che li distinguono"),
+    f.comune ? h("div", { class: "attr", title: Object.entries(f.cataloghi).map(([c, n]) => c + ": " + fmt(n)).join("\n") },
+      h("span", { class: "pill blu" }, CATALOGO ? "anche in " + altriCat.join(", ") : "in " + Object.keys(f.cataloghi).length + " cataloghi")) : null);
 }
 
-function vai(p) { pagina = p; carica().then(() => window.scrollTo({ top: 0 })); }
-function daCapo() { pagina = 1; carica(); }
+/* ================= ARTICOLI (una famiglia o una ricerca) ================= */
+const A = { ctrl: null, aperti: new Set(), chiusi: new Set(), espansi: new Set(), cercaValori: {}, righe: [] };
 
-$("#q").addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(daCapo, 250); });
-for (const id of ["#attr", "#origine", "#ordine"]) $(id).addEventListener("change", daCapo);
-$("#descr").addEventListener("change", () => {
-  document.body.classList.toggle("con-descr", $("#descr").checked);
-  scriviIndirizzo(stato());
-});
-$("#azzera").addEventListener("click", () => {
-  $("#q").value = ""; $("#attr").value = ""; $("#origine").value = ""; $("#q").focus(); vai(1);
-});
-$("#prec").addEventListener("click", () => vai(pagina - 1));
-$("#succ").addEventListener("click", () => vai(pagina + 1));
+function statoArticoli(vista, id, p) {
+  return {
+    vista, id, q: p.get("q") || "", pagina: Math.max(1, parseInt(p.get("pagina") || "1", 10) || 1),
+    ordine: p.get("ordine") || "nome", verso: p.get("verso") === "desc" ? "desc" : "asc", modo: p.get("modo") === "schede" ? "schede" : "tabella",
+    filtri: p.getAll("f").filter((f) => f.includes("::")).map((f) => { const i = f.indexOf("::"); return [f.slice(0, i), f.slice(i + 2)]; }),
+  };
+}
+function hashArticoli(s, cambi) {
+  const t = { ...s, ...cambi };
+  const p = new URLSearchParams();
+  if (t.q) p.set("q", t.q);
+  for (const [k, v] of t.filtri) p.append("f", k + "::" + v);
+  if (t.ordine !== "nome") p.set("ordine", t.ordine);
+  if (t.verso === "desc") p.set("verso", "desc");
+  if (t.modo !== "tabella") p.set("modo", t.modo);
+  if (t.pagina > 1) p.set("pagina", t.pagina);
+  return indirizzo(t.vista, t.id, p);
+}
+function paramApi(s, extra) {
+  const p = new URLSearchParams(extra || {});
+  if (CATALOGO) p.set("catalogo", CATALOGO);
+  if (s.vista === "famiglia") p.set("famiglia", s.id === "senza" ? "-1" : s.id);
+  if (s.q) p.set("q", s.q);
+  for (const [k, v] of s.filtri) p.append("f", k + "::" + v);
+  return p;
+}
 
-caricaAttributi(leggiIndirizzo()).then(carica).catch(() => {
-  $("#elenco").replaceChildren(el("div", "vuoto", "Impossibile leggere il database. Controlla che PostgreSQL sia acceso."));
-  $("#conteggio").textContent = "";
+async function vistaArticoli(vista, id, p, nuova) {
+  const s = statoArticoli(vista, id, p);
+  let titolo = "Ricerca", sotto = "";
+  if (vista === "famiglia") {
+    const d = await famiglie(CATALOGO);
+    const f = id === "senza" ? { nome: "Senza famiglia" } : d.famiglie.find((x) => String(x.id) === id);
+    titolo = f ? f.nome : "Famiglia";
+    if (f && f.comune) sotto = "In " + Object.entries(f.cataloghi).map(([c, n]) => c + " (" + fmt(n) + ")").join(", ");
+  } else {
+    titolo = s.q ? "Risultati per «" + s.q + "»" : "Tutti gli articoli";
+  }
+  if (nuova || !$("#risultati")) {
+    A.aperti.clear(); A.chiusi.clear(); A.espansi.clear(); A.cercaValori = {};
+    const qInput = h("input", { type: "search", id: "q-art", autocomplete: "off", value: s.q, "aria-label": "Cerca tra questi articoli",
+      placeholder: vista === "famiglia" ? "Cerca in questa famiglia…" : "Cerca codice, nome, valore…" });
+    let t;
+    qInput.addEventListener("input", () => {
+      clearTimeout(t);
+      t = setTimeout(() => { const st = statoArticoli(vista, id, leggiHash().p); vai(hashArticoli(st, { q: qInput.value.trim(), pagina: 1 }), true); }, 250);
+    });
+    riempi($("#vista"), 
+      h("nav", { class: "briciole", "aria-label": "Percorso" }, h("a", { href: indirizzo("famiglie") }, "Famiglie"), icona("dx"),
+        h("span", { id: "bric-titolo" }, titolo)),
+      h("div", { class: "testa-art" },
+        h("div", null, h("h1", { id: "titolo-art" }, titolo), h("p", { class: "sotto", id: "sotto-art" }, sotto), h("div", { class: "comuni", id: "comuni" }))),
+      h("div", { class: "layout" },
+        h("aside", { class: "filtri", id: "filtri", "aria-label": "Filtri" },
+          h("div", { class: "intesta" }, h("h2", null, icona("filtro"), "Filtri"), h("button", { type: "button", class: "btn piatto", id: "azzera", hidden: true }, "Azzera")),
+          h("div", { class: "ricerca" }, h("div", { class: "cerca" }, icona("cerca"), qInput)),
+          h("div", { id: "faccette" })),
+        h("section", { "aria-label": "Articoli" },
+          h("div", { class: "barra-ris", id: "barra-ris" }),
+          h("div", { class: "attivi", id: "attivi" }),
+          h("div", { id: "risultati" }),
+          h("div", { class: "pager", id: "pager" }))));
+  } else {
+    $("#titolo-art").textContent = titolo; $("#bric-titolo").textContent = titolo;
+    const qi = $("#q-art"); if (document.activeElement !== qi) qi.value = s.q;
+  }
+
+  if (A.ctrl) A.ctrl.abort();
+  A.ctrl = new AbortController();
+  $("#risultati").classList.add("carico");
+  const par = new URLSearchParams(paramApi(s, { pagina: s.pagina, ordine: s.ordine, verso: s.verso }));
+  const [fac, art] = await Promise.all([api("/api/faccette", paramApi(s, { tutte: "1" }), A.ctrl.signal), api("/api/articoli", par, A.ctrl.signal)]);
+  $("#risultati").classList.remove("carico");
+  disegnaComuni(fac, s);
+  disegnaFaccette(fac, s);
+  disegnaRisultati(art, fac, s);
+}
+
+function disegnaComuni(fac, s) {
+  const box = $("#comuni");
+  const filtrati = new Set(s.filtri.map(([k]) => k));
+  const c = fac.costanti.filter((x) => !filtrati.has(x.chiave));
+  riempi(box, ...(c.length && fac.totale > 1 ? [h("span", { class: "lbl" }, "Caratteristiche comuni:"),
+    ...c.slice(0, 10).map((x) => h("span", { class: "pill g", style: "--h:" + gruppo(x.chiave)[2], title: (META[x.chiave] || {}).etichetta + (x.n < fac.totale ? " — " + fmt(x.n) + " articoli su " + fmt(fac.totale) : " — tutti gli articoli") },
+      icona(gruppo(x.chiave)[1]), etichetta(x.chiave) + " ", h("b", null, x.valore), x.n < fac.totale ? " (" + fmt(x.n) + ")" : ""))] : []));
+}
+
+function ordinaValori(valori) {
+  if (valori.every((v) => v.num != null)) return [...valori].sort((a, b) => a.num - b.num || a.valore.localeCompare(b.valore, "it"));
+  return valori;
+}
+
+function disegnaFaccette(fac, s) {
+  const scelti = {};
+  for (const [k, v] of s.filtri) (scelti[k] = scelti[k] || new Set()).add(v);
+  const azzera = $("#azzera");
+  azzera.hidden = !s.filtri.length;
+  azzera.onclick = () => vai(hashArticoli(s, { filtri: [], pagina: 1 }));
+  const toggle = (k, v, on) => {
+    const filtri = s.filtri.filter(([a, b]) => !(a === k && b === v));
+    if (on) filtri.push([k, v]);
+    A.aperti.add(k);
+    vai(hashArticoli(s, { filtri, pagina: 1 }));
+  };
+  const gruppi = fac.attributi.map((a, i) => {
+    const sel = scelti[a.chiave] || new Set();
+    const aperto = !A.chiusi.has(a.chiave) && (A.aperti.has(a.chiave) || sel.size > 0 || i < 4);
+    const valori = ordinaValori(a.valori);
+    for (const v of sel) if (!valori.some((x) => x.valore === v)) valori.unshift({ valore: v, n: 0 });
+    const filtroTesto = norm(A.cercaValori[a.chiave] || "");
+    const visibili = valori.filter((v) => !filtroTesto || norm(v.valore).includes(filtroTesto));
+    const tutti = A.espansi.has(a.chiave) || filtroTesto || visibili.length <= 9;
+    const lista = h("div", null, (tutti ? visibili : visibili.slice(0, 7)).map((v) => h("label", { class: "opz" + (v.n ? "" : " zero") },
+      h("input", { type: "checkbox", checked: sel.has(v.valore), onchange: (e) => toggle(a.chiave, v.valore, e.target.checked) }),
+      h("span", { class: "v" }, v.valore), h("span", { class: "c" }, fmt(v.n)))));
+    const det = h("details", { class: "gruppo", open: aperto },
+      h("summary", { title: (META[a.chiave] || {}).etichetta || a.chiave },
+        icAttr(a.chiave, true), etichetta(a.chiave), sel.size ? h("span", { class: "sel" }, sel.size) : h("small", null, a.n_valori), icona("giu", "chev")),
+      h("div", { class: "corpo" },
+        valori.length > 12 ? h("div", { class: "mini" }, h("input", { type: "search", placeholder: "Cerca un valore…", value: A.cercaValori[a.chiave] || "",
+          "aria-label": "Cerca un valore di " + etichetta(a.chiave),
+          oninput: (e) => { A.cercaValori[a.chiave] = e.target.value; const pos = e.target.selectionStart; disegnaFaccette(fac, s);
+            const nuovo = $("#faccette").querySelector('[data-k="' + CSS.escape(a.chiave) + '"] .mini input'); if (nuovo) { nuovo.focus(); nuovo.setSelectionRange(pos, pos); } } })) : null,
+        lista,
+        !tutti ? h("button", { type: "button", class: "btn piatto altro", onclick: () => { A.espansi.add(a.chiave); disegnaFaccette(fac, s); } },
+          "Mostra tutti (" + visibili.length + ")") : null,
+        a.n_valori > a.valori.length ? h("p", { class: "nota" }, "Mostrati i " + a.valori.length + " valori più frequenti su " + a.n_valori + ".") : null));
+    det.dataset.k = a.chiave;
+    det.addEventListener("toggle", () => { if (det.open) { A.aperti.add(a.chiave); A.chiusi.delete(a.chiave); } else { A.chiusi.add(a.chiave); A.aperti.delete(a.chiave); } });
+    return det;
+  });
+  riempi($("#faccette"), ...(gruppi.length ? gruppi
+    : [h("p", { class: "nulla" }, fac.totale ? "Nessun attributo distingue questi articoli." : "Nessun articolo.")]));
+}
+
+function disegnaRisultati(d, fac, s) {
+  A.righe = d.righe;
+  // filtri attivi
+  riempi($("#attivi"), ...s.filtri.map(([k, v]) => h("button", { type: "button", class: "chip", title: "Togli questo filtro",
+    onclick: () => vai(hashArticoli(s, { filtri: s.filtri.filter(([a, b]) => !(a === k && b === v)), pagina: 1 })) },
+    h("span", null, etichetta(k) + ":"), v, icona("x"))));
+
+  // colonne: gli attributi che cambiano tra questi articoli (e che compaiono in questa pagina)
+  const presenti = new Set(d.righe.flatMap((r) => r.attr.map((x) => x[0])));
+  const colonne = fac.attributi.filter((a) => presenti.has(a.chiave))
+    .sort((a, b) => b.articoli - a.articoli).slice(0, 8).sort((a, b) => (ORDINE[a.chiave] ?? 99) - (ORDINE[b.chiave] ?? 99)).map((a) => a.chiave);
+
+  // barra: totale, ordinamento, vista
+  const opzOrd = [["nome", "Nome"], ["codice", "Codice"], ...fac.attributi.map((a) => ["a:" + a.chiave, etichetta(a.chiave)])];
+  if (!opzOrd.some(([v]) => v === s.ordine)) opzOrd.push([s.ordine, s.ordine.startsWith("a:") ? etichetta(s.ordine.slice(2)) : s.ordine]);
+  const nFiltri = s.filtri.length;
+  riempi($("#barra-ris"), 
+    h("button", { type: "button", class: "btn apri-filtri", "aria-expanded": String($("#filtri").classList.contains("aperto")),
+      onclick: (e) => { const f = $("#filtri"); f.classList.toggle("aperto"); e.currentTarget.setAttribute("aria-expanded", String(f.classList.contains("aperto"))); } },
+      icona("filtro"), "Filtri" + (nFiltri ? " (" + nFiltri + ")" : "")),
+    h("div", { class: "tot" }, h("b", null, fmt(d.totale)), d.totale === 1 ? " articolo" : " articoli"),
+    h("div", { class: "ordina" }, h("label", { for: "ordine" }, "Ordina per"),
+      h("select", { id: "ordine", onchange: (e) => vai(hashArticoli(s, { ordine: e.target.value, pagina: 1 }), true) },
+        opzOrd.map(([v, t]) => h("option", { value: v, selected: v === s.ordine }, t))),
+      h("button", { type: "button", class: "btn icona", title: s.verso === "desc" ? "Decrescente" : "Crescente", "aria-label": "Inverti l'ordine",
+        onclick: () => vai(hashArticoli(s, { verso: s.verso === "desc" ? "asc" : "desc", pagina: 1 }), true) }, icona(s.verso === "desc" ? "freccia_giu" : "freccia_su"))),
+    h("div", { class: "segmenti", role: "group", "aria-label": "Visualizzazione" },
+      h("button", { type: "button", "aria-pressed": String(s.modo === "tabella"), onclick: () => vai(hashArticoli(s, { modo: "tabella" }), true) }, icona("tabella"), "Tabella"),
+      h("button", { type: "button", "aria-pressed": String(s.modo === "schede"), onclick: () => vai(hashArticoli(s, { modo: "schede" }), true) }, icona("schede"), "Schede")));
+
+  const box = $("#risultati");
+  if (!d.righe.length) {
+    riempi(box, h("div", { class: "vuoto" }, nFiltri || s.q ? "Nessun articolo con questi filtri." : "Nessun articolo."));
+  } else if (s.modo === "schede") {
+    riempi(box, h("div", { class: "lista" }, d.righe.map((r, i) => schedaArticolo(r, i, s))));
+  } else {
+    riempi(box, tabellaArticoli(d.righe, colonne, s));
+  }
+
+  // pagine
+  const da = (d.pagina - 1) * d.per_pagina + 1, a = Math.min(d.totale, d.pagina * d.per_pagina);
+  riempi($("#pager"), ...(d.pagine > 1 ? [
+    h("button", { type: "button", class: "btn", disabled: d.pagina <= 1, onclick: () => vai(hashArticoli(s, { pagina: d.pagina - 1 })) }, icona("sx"), "Precedente"),
+    h("span", null, fmt(da) + "–" + fmt(a) + " di " + fmt(d.totale) + " · pagina " + d.pagina + " di " + d.pagine),
+    h("button", { type: "button", class: "btn", disabled: d.pagina >= d.pagine, onclick: () => vai(hashArticoli(s, { pagina: d.pagina + 1 })) }, "Successiva", icona("dx"))] : []));
+}
+
+function aggiungiFiltro(s, k, v) {
+  if (s.filtri.some(([a, b]) => a === k && b === v)) return;
+  A.aperti.add(k);
+  vai(hashArticoli(s, { filtri: [...s.filtri, [k, v]], pagina: 1 }));
+}
+function bottoneValore(s, k, v) {
+  return h("button", { type: "button", class: "v", title: "Filtra: " + etichetta(k) + " = " + v,
+    onclick: (e) => { e.stopPropagation(); aggiungiFiltro(s, k, v); } }, v);
+}
+
+function tabellaArticoli(righe, colonne, s) {
+  const intestazione = (testo, ordine, chiave) => {
+    const attivo = s.ordine === ordine;
+    return h("th", { scope: "col", "aria-sort": attivo ? (s.verso === "desc" ? "descending" : "ascending") : null },
+      h("button", { type: "button", class: attivo ? "attivo" : "", title: "Ordina per " + testo,
+        onclick: () => vai(hashArticoli(s, { ordine, verso: attivo && s.verso === "asc" ? "desc" : "asc", pagina: 1 }), true) },
+        chiave ? icAttr(chiave, true) : null, testo, icona(attivo ? (s.verso === "desc" ? "freccia_giu" : "freccia_su") : "su_giu")));
+  };
+  const mostraFam = s.vista !== "famiglia";
+  return h("div", { class: "tabella" }, h("table", null,
+    h("thead", null, h("tr", null, intestazione("Codice", "codice"), intestazione("Articolo", "nome"),
+      colonne.map((k) => intestazione(etichetta(k), "a:" + k, k)))),
+    h("tbody", null, righe.map((r, i) => {
+      const val = Object.fromEntries(r.attr.map((x) => [x[0], x[1]]));
+      return h("tr", { onclick: () => apriDettaglio(i, s) },
+        h("td", { class: "cod" }, h("span", { class: "mono codice" }, r.cod)),
+        h("td", { class: "nome" }, h("button", { type: "button", onclick: (e) => { e.stopPropagation(); apriDettaglio(i, s); } }, r.nome || r.descr),
+          mostraFam ? h("span", { class: "fam-b" }, r.famiglia || "senza famiglia") : null),
+        colonne.map((k) => val[k] != null ? h("td", { class: "val" + (val[k].length <= 24 ? " corta" : "") }, bottoneValore(s, k, val[k])) : h("td", { class: "val vuota", "aria-label": "nessun valore" }, "—")));
+    }))));
+}
+
+function schedaArticolo(r, i, s) {
+  return h("article", { class: "art", onclick: () => apriDettaglio(i, s) },
+    h("div", { class: "r1" }, h("span", { class: "mono codice" }, r.cod), s.vista !== "famiglia" && r.famiglia ? h("span", { class: "famb" }, r.famiglia) : null,
+      !CATALOGO ? h("span", { style: "margin-left:auto" }, r.catalogo) : null),
+    h("div", { class: "nomi" },
+      h("h3", null, h("button", { type: "button", onclick: (e) => { e.stopPropagation(); apriDettaglio(i, s); } }, r.nome || r.descr)),
+      h("p", { class: "n2" }, h("span", { class: "etq" }, "nomeV2"), h("span", null, r.nome2 || "—")),
+      h("p", { class: "ds" }, h("span", { class: "etq" }, "Descrizione"), h("span", null, r.descr))),
+    r.attr.length ? h("dl", null, r.attr.map(([k, v]) => h("div", null, icAttr(k),
+        h("div", { style: "min-width:0" }, h("dt", { title: (META[k] || {}).etichetta || k }, etichetta(k)), h("dd", null, bottoneValore(s, k, v))))))
+      : h("p", { class: "tenue", style: "margin:0;font-size:13px" }, "Nessun attributo trovato."));
+}
+
+/* ---- dettaglio di un articolo (pannello laterale) ---- */
+let primaDelDettaglio = null;
+function apriDettaglio(i, s) {
+  const r = A.righe[i];
+  if (!r) return;
+  primaDelDettaglio = document.activeElement;
+  const gruppi = {};
+  for (const [k, v, orig, fonte] of r.attr) {
+    const g = (META[k] || {}).gruppo || "Altro";
+    (gruppi[g] = gruppi[g] || []).push([k, v, orig, fonte]);
+  }
+  const chiudi = h("button", { type: "button", class: "btn icona", "aria-label": "Chiudi", onclick: chiudiDettaglio }, icona("x"));
+  const famLink = r.famiglia ? (() => {
+    const fam = ((cache.famiglie[CATALOGO] || {}).dati || { famiglie: [] }).famiglie.find((f) => f.nome === r.famiglia);
+    return fam ? h("a", { href: indirizzo("famiglia", fam.id) }, r.famiglia) : r.famiglia;
+  })() : h("span", { class: "tenue" }, "non assegnata");
+  riempi($("#cassetto"), 
+    h("div", { class: "barra" }, h("span", { class: "mono codice" }, r.cod), h("span", { class: "tenue" }, r.catalogo), chiudi),
+    h("div", { class: "corpo" },
+      h("h2", { id: "det-titolo" }, r.nome || r.descr),
+      h("dl", { class: "campi" },
+        h("dt", null, "Famiglia"), h("dd", null, famLink),
+        h("dt", null, "Nome senza attributi"), h("dd", null, r.nome2 || "—"),
+        h("dt", null, "Codice interno"), h("dd", { class: "mono" }, r.codice)),
+      r.attr.length ? Object.entries(gruppi).map(([g, voci]) => [h("h3", { class: "g", style: "--h:" + (GRUPPI[g] || ["", 220])[1] }, icAttr(voci[0][0], true), g), h("dl", { class: "campi" }, voci.map(([k, v, orig, fonte]) => [
+        h("dt", { title: (META[k] || {}).etichetta || k }, etichetta(k)),
+        h("dd", null, bottoneValore(s, k, v), h("span", { class: "orig" }, ORIGINE[orig] || orig,
+          fonte && /^https?:\/\//i.test(fonte) ? [" · ", h("a", { href: fonte, target: "_blank", rel: "noopener noreferrer" }, "fonte ", icona("esterno"))] : null))]))])
+        : [h("h3", null, "Attributi"), h("p", { class: "tenue" }, "Nessun attributo trovato per questo articolo.")],
+      h("h3", null, "Descrizione originale del catalogo"), h("p", { class: "descr" }, r.descr)));
+  $("#cassetto").querySelectorAll("button.v").forEach((b) => b.addEventListener("click", chiudiDettaglio));
+  $("#velo").hidden = false; $("#cassetto").hidden = false;
+  chiudi.focus();
+}
+function chiudiDettaglio() {
+  if ($("#cassetto").hidden) return;
+  $("#velo").hidden = true; $("#cassetto").hidden = true;
+  if (primaDelDettaglio && document.contains(primaDelDettaglio)) primaDelDettaglio.focus();
+}
+$("#velo").addEventListener("click", chiudiDettaglio);
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") chiudiDettaglio(); });
+
+/* ================= ATTRIBUTI CANDIDATI ================= */
+async function vistaCandidati(p, nuova) {
+  const q = p.get("q") || "", stato = p.get("stato") || "", ordine = p.get("ordine") || "n";
+  const d = await candidati(CATALOGO);
+  const par = (c) => ({ q, stato, ordine: ordine === "n" ? "" : ordine, ...c });
+  if (nuova || !$("#cand-ris")) {
+    const input = h("input", { type: "search", id: "cerca-cand", autocomplete: "off", value: q, placeholder: "Cerca un testo…", "aria-label": "Cerca tra i candidati" });
+    let t;
+    input.addEventListener("input", () => { clearTimeout(t); t = setTimeout(() => {
+      const pp = leggiHash().p; vai(indirizzo("candidati", "", { q: input.value.trim(), stato: pp.get("stato") || "", ordine: pp.get("ordine") || "" }), true); }, 180); });
+    riempi($("#vista"), 
+      h("h1", null, "Attributi candidati"),
+      h("p", { class: "sotto", style: "max-width:760px" }, "Testi che restano nel nomeV2 e si ripetono su molti articoli: possibili nuovi attributi. Li approva una persona; da qui puoi vedere quanti articoli toccano e aprirli."),
+      h("div", { class: "barra-cand" }, h("div", { class: "cerca" }, icona("cerca"), input), h("div", { id: "cand-seg" }), h("div", { id: "cand-ord", class: "ordina" })),
+      h("div", { id: "cand-ris" }));
+  }
+  const conta = (st) => d.candidati.filter((c) => !st || c.stato === st).length;
+  const stati = [["", "Tutti"], ["proposto", "Da valutare"], ["approvato", "Approvati"], ["scartato", "Scartati"]].filter(([v]) => !v || conta(v));
+  riempi($("#cand-seg"), h("div", { class: "segmenti", role: "group", "aria-label": "Stato" }, stati.map(([v, t]) =>
+    h("button", { type: "button", "aria-pressed": String(stato === v), onclick: () => vai(indirizzo("candidati", "", par({ stato: v })), true) }, t, h("small", null, conta(v))))));
+  riempi($("#cand-ord"), h("label", { for: "cand-ordine" }, "Ordina per"),
+    h("select", { id: "cand-ordine", onchange: (e) => vai(indirizzo("candidati", "", par({ ordine: e.target.value === "n" ? "" : e.target.value })), true) },
+      [["n", "Più articoli"], ["az", "A–Z"]].map(([v, t]) => h("option", { value: v, selected: ordine === v }, t))));
+
+  const parole = norm(q).split(/\s+/).filter(Boolean);
+  let lista = d.candidati.filter((c) => (!stato || c.stato === stato) && parole.every((w) => norm(c.testo).includes(w)));
+  if (ordine === "az") lista = [...lista].sort((a, b) => a.testo.localeCompare(b.testo, "it"));
+  const max = Math.max(1, ...d.candidati.map((c) => c.n));
+  const box = $("#cand-ris");
+  if (!d.candidati.length) { riempi(box, h("div", { class: "vuoto" }, "Nessun attributo candidato (si propongono con proponi_attributi.py).")); return; }
+  if (!lista.length) { riempi(box, h("div", { class: "vuoto" }, "Nessun candidato corrisponde alla ricerca.")); return; }
+  const statoTesto = { proposto: "da valutare", approvato: "approvato", scartato: "scartato" };
+  riempi(box, h("div", { class: "tabella cand" }, h("table", null,
+    h("thead", null, h("tr", null, h("th", { scope: "col" }, "Testo"), h("th", { scope: "col", style: "text-align:right" }, "Articoli"),
+      h("th", { scope: "col" }, "Stato"), !CATALOGO ? h("th", { scope: "col" }, "Catalogo") : null,
+      h("th", { scope: "col" }, "Esempio"), h("th", { scope: "col" }, h("span", { class: "tenue" }, "")))),
+    h("tbody", null, lista.map((c) => h("tr", null,
+      h("td", { class: "testo" }, c.testo),
+      h("td", { class: "n" }, fmt(c.n), h("span", { class: "barretta", style: "width:" + Math.max(4, Math.round(64 * c.n / max)) + "px" })),
+      h("td", null, h("span", { class: "stato " + c.stato }, statoTesto[c.stato] || c.stato)),
+      !CATALOGO ? h("td", { class: "tenue" }, c.catalogo) : null,
+      h("td", { class: "es" }, c.esempio_nome ? evidenzia(c.esempio_nome, c.testo) : h("span", { class: "tenue" }, "—"),
+        c.esempio ? h("span", { class: "mono" }, c.esempio) : null),
+      h("td", null, h("a", { class: "btn", href: (() => { const sv = CATALOGO; CATALOGO = c.catalogo; const u = indirizzo("cerca", "", { q: c.testo }); CATALOGO = sv; return u; })() },
+        "Vedi articoli", icona("dx")))))))));
+}
+function evidenzia(testo, cerca) {
+  const i = norm(testo).indexOf(norm(cerca));
+  if (i < 0 || !cerca) return testo;
+  return h("span", null, testo.slice(0, i), h("mark", null, testo.slice(i, i + cerca.length)), testo.slice(i + cerca.length));
+}
+
+/* ================= avvio ================= */
+$("#catalogo").addEventListener("change", (e) => {
+  CATALOGO = e.target.value;
+  const { vista, id } = leggiHash();
+  // cambiando catalogo una famiglia resta valida (sono condivise); la ricerca tiene il testo
+  if (vista === "famiglia" || vista === "cerca") vai(indirizzo(vista, id, { q: leggiHash().p.get("q") || "" }));
+  else vai(indirizzo(vista === "candidati" ? "candidati" : "famiglie"));
 });
+window.addEventListener("hashchange", instrada);
+caricaBase().then(instrada).catch(() => riempi($("#vista"), h("div", { class: "vuoto" }, ERRORE_DB)));
 </script>
 </body>
 </html>

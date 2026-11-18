@@ -1,0 +1,4 @@
+# gli script e i file per Linux devono avere a capo LF anche se il repository passa da Windows
+*.sh text eol=lf
+*.service text eol=lf
+deploy/*.conf text eol=lf
