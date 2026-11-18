@@ -3,7 +3,7 @@
 Gli articoli devono GIA' esistere in `materiale` (stesso CSV importato con import_catalogo.py): si aggiornano nomeV1, nomeV2,
 famiglia e attributi; non si crea ne' si cancella nessun articolo.
 
-  py -3.13 importa_risultati.py esportazioni/acme_srl.json.gz [--prova] [--ignora-mancanti]
+  py -3.15 importa_risultati.py esportazioni/acme_srl.json.gz [--prova] [--ignora-mancanti]
 """
 import argparse
 import gzip

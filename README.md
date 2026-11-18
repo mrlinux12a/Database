@@ -11,10 +11,10 @@ descrizione originale, un **nomeV1** (il nome più semplice e completo) e gli **
 | Aprire la pagina | doppio clic su `avvia_web.bat` → http://localhost:8001 |
 | (Ri)caricare gli articoli **e** ricalcolare nomeV1/attributi | doppio clic su `avvia_import.bat` |
 | Solo ricalcolare nomeV1/attributi | doppio clic su `avvia_arricchimento.bat` |
-| Vedere le statistiche senza scrivere nel DB | `py -3.13 arricchisci.py --prova` |
-| Vedere cosa entrerebbe dall'import senza toccare il DB | `py -3.13 import_catalogo.py --prova` |
+| Vedere le statistiche senza scrivere nel DB | `py -3.15 arricchisci.py --prova` |
+| Vedere cosa entrerebbe dall'import senza toccare il DB | `py -3.15 import_catalogo.py --prova` |
 
-Requisiti: PostgreSQL attivo, Python 3.13 con `psycopg2-binary` e `openpyxl`. Connessione di default: `localhost`, utente
+Requisiti: PostgreSQL attivo, Python 3.15 con `psycopg2-binary` e `openpyxl`. Connessione di default: `localhost`, utente
 `postgres`, senza password, database `db_serio_finale` (variabili `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD`, `PGDATABASE`).
 
 La pagina permette di: cercare (nel codice, nel nome, nella descrizione e nei valori degli attributi), filtrare per attributo
@@ -34,7 +34,7 @@ descrizione originale, e vedere in «Copertura degli attributi» quanti articoli
   script e il sito; una variabile già impostata nel terminale ha la precedenza. `.env` non va su git.
 * Cartella di Excel e CSV: variabile `ORIGINE_CATALOGHI`, oppure `--csv` / `--excel`.
 * `fonti/aircontrolclima_it/pagine.json` non è nel repository: se manca, Air Control funziona lo stesso (con un avviso);
-  per rigenerarlo `py -3.13 fonti/scrape_aircontrolclima.py`.
+  per rigenerarlo `py -3.15 fonti/scrape_aircontrolclima.py`.
 * Istruzioni per chi lavora (anche per Claude): `CLAUDE.md`.
 
 ## Quali articoli entrano
@@ -52,7 +52,7 @@ Nell'Excel, nel blocco **AIR CONTROL**, la colonna «Tenere?» dice per ogni lin
 
 Risultato: **5.013 articoli** nella tabella `materiale`. L'import è rilanciabile: rifà da zero solo le righe di quel catalogo
 (una transazione). **Cancella anche nomeV1 e attributi**, per questo `avvia_import.bat` lancia subito dopo `arricchisci.py`.
-Per un altro fornitore: `py -3.13 import_catalogo.py --csv "…\Altro.csv" --brand "NOME NELL'EXCEL"`.
+Per un altro fornitore: `py -3.15 import_catalogo.py --csv "…\Altro.csv" --brand "NOME NELL'EXCEL"`.
 
 ## nomeV1 e attributi
 
@@ -138,7 +138,7 @@ o non sono pubblicati. Restano nell'elenco: se arriveranno altri cataloghi si ri
 
 * Altro dato di una famiglia Air Control → `arricchimento/sito.py` (`FAM`).
 * Altro dato di un componente di terzi → `arricchimento/web.py` (`DATI` per codice, `SERIE` per tutta una serie).
-* Un nuovo modo di scrivere una descrizione → `arricchimento/parse.py`; poi `py -3.13 arricchisci.py --prova` per vedere l'effetto.
+* Un nuovo modo di scrivere una descrizione → `arricchimento/parse.py`; poi `py -3.15 arricchisci.py --prova` per vedere l'effetto.
 
 ## Tabella `materiale`
 

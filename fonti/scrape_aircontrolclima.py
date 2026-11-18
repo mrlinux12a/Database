@@ -3,7 +3,7 @@
 Fonte: sito ufficiale del produttore (Air Control Srl). Rispetta robots.txt (che non vieta /it/p/), pausa tra le richieste
 (0,6 s) e User-Agent generico. Le pagine da leggere si ricavano dalla sitemap del sito.
 
-Uso:  py -3.13 fonti/scrape_aircontrolclima.py
+Uso:  py -3.15 fonti/scrape_aircontrolclima.py
 Per ogni scheda salva: titolo, serie, schemi di codice (campo "Codice"), categoria, testo della descrizione/dettagli tecnici
 e i link ai documenti collegati (scheda commerciale, scheda tecnica, manuale, dimensionali) - i PDF NON vengono scaricati.
 """

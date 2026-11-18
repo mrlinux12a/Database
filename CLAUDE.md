@@ -32,24 +32,24 @@ Leggi anche `README.md` (struttura, tabelle, esempio completo con Air Control).
 
 ## Procedura per un catalogo nuovo
 
-Prerequisiti: PostgreSQL acceso, Python 3.13 con `psycopg2-binary openpyxl requests`.
+Prerequisiti: PostgreSQL acceso, Python 3.15 con `psycopg2-binary openpyxl requests`.
 Il database di lavoro è `db_serio_finale` sul PC locale (o un altro nome con la variabile `PGDATABASE`; vedi README).
 Lancia gli script **senza** `-I` (non troverebbe il pacchetto `arricchimento`) e con `PYTHONIOENCODING=utf-8` se stampi testo con Ø, °, ³.
 
 1. **Importa il catalogo** (ricevi dal responsabile il CSV e l'Excel `Flash_Delivery_Linee_per_Brand.xlsx`, che dice quali linee tenere):
-   `py -3.13 import_catalogo.py --csv "…\Nome.csv" --excel "…\Flash_Delivery_Linee_per_Brand.xlsx" --brand "NOME NELL'EXCEL"`
+   `py -3.15 import_catalogo.py --csv "…\Nome.csv" --excel "…\Flash_Delivery_Linee_per_Brand.xlsx" --brand "NOME NELL'EXCEL"`
    (`--prova` per vedere cosa entrerebbe). Il nome del catalogo = nome del file CSV senza `.csv`.
 2. **Capisci il catalogo**: guarda 200+ descrizioni a campione, le colonne del CSV, lo schema dei codici (prefissi, misure nel codice, suffissi). Elenca abbreviazioni, refusi, unità, tipi di prodotto.
 3. **Crea il modulo del catalogo**: copia `arricchimento/cataloghi/_modello.py` in `arricchimento/cataloghi/<nome>.py`
    (nome = catalogo in minuscolo, non alfanumerici → `_`: «Acme SRL» → `acme_srl.py`). Parti da `cataloghi/generico.py` (misure, Ø, DN, PN, V, W, bar, kg, °C, portate) e aggiungi le regole del catalogo.
    Riferimento completo: `cataloghi/air_control_srl.py` + `parse.py` + `sito.py` + `web.py`.
-4. **Prova senza scrivere**: `py -3.13 arricchisci.py --catalogo "Nome" --prova` → statistiche per attributo e origine. Poi scrivi: stesso comando senza `--prova`.
+4. **Prova senza scrivere**: `py -3.15 arricchisci.py --catalogo "Nome" --prova` → statistiche per attributo e origine. Poi scrivi: stesso comando senza `--prova`.
 5. **Controlla a campione** (almeno 50 articoli di famiglie diverse, più tutti i casi strani): nome sensato? numeri giusti? nessun attributo inventato? Nel database: `select nomev1, nomev2 from materiale where catalogo = '…'` e `materiale_attributo`. Ripeti 3–4 si finché i residui sono pochi.
 6. **Ricerca online per famiglia** per i dati che la descrizione non ha (materiale, normative, IP, temperature, pesi, compatibilità…): pagine HTML del produttore e schede di terzi, con la regola 2 (origine + fonte). Metti i fatti nel modulo (come `sito.py` / `web.py`): un fatto per famiglia o per codice, con l'URL.
-7. **Proposte**: `py -3.13 proponi_famiglie.py --catalogo "Nome"` (elenca i gruppi; `--assegna` crea le famiglie provvisorie) e `py -3.13 proponi_attributi.py --catalogo "Nome"` (testi ripetuti nel nomeV2). Le famiglie e i candidati finali li approva una persona.
-8. **Consegna**: `py -3.13 esporta.py --catalogo "Nome"` → `esportazioni/<nome>.json.gz` (nomi, famiglia, attributi con origine e fonte, candidati; **niente prezzi**) + il file `arricchimento/cataloghi/<nome>.py` e gli eventuali dati di fonte. Scrivi nel messaggio di consegna: statistiche di copertura, scelte fatte, casi ambigui lasciati, valori contraddittori non inseriti.
+7. **Proposte**: `py -3.15 proponi_famiglie.py --catalogo "Nome"` (elenca i gruppi; `--assegna` crea le famiglie provvisorie) e `py -3.15 proponi_attributi.py --catalogo "Nome"` (testi ripetuti nel nomeV2). Le famiglie e i candidati finali li approva una persona.
+8. **Consegna**: `py -3.15 esporta.py --catalogo "Nome"` → `esportazioni/<nome>.json.gz` (nomi, famiglia, attributi con origine e fonte, candidati; **niente prezzi**) + il file `arricchimento/cataloghi/<nome>.py` e gli eventuali dati di fonte. Scrivi nel messaggio di consegna: statistiche di copertura, scelte fatte, casi ambigui lasciati, valori contraddittori non inseriti.
 
-Chi riceve controlla con `py -3.13 importa_risultati.py esportazioni/<nome>.json.gz --prova` e poi senza `--prova`.
+Chi riceve controlla con `py -3.15 importa_risultati.py esportazioni/<nome>.json.gz --prova` e poi senza `--prova`.
 
 ## Come si scrive un buon modulo
 

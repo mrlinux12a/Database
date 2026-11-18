@@ -1,7 +1,7 @@
 """Sito di consultazione di db_serio_finale: per ogni codice fornitore mostra nomeV1 e gli attributi trovati
 (solo quelli con un valore: dove non c'e' niente, la riga non esiste).
 
-Uso:  py -3.13 web/server.py [--porta 8001] [--apri] [--host 127.0.0.1]
+Uso:  py -3.15 web/server.py [--porta 8001] [--apri] [--host 127.0.0.1]
 Di default e' raggiungibile solo da questo PC. Connessione al database: PGHOST, PGPORT, PGUSER, PGPASSWORD, PGDATABASE
 (default: localhost, 5432, postgres, nessuna password, db_serio_finale).
 

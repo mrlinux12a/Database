@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """Raggruppa gli articoli di un catalogo per nomeV2 identico: ogni gruppo e' una famiglia candidata.
 
-  py -3.13 proponi_famiglie.py --catalogo "Air Control SRL" [--min 3]            elenca i gruppi
-  py -3.13 proponi_famiglie.py --catalogo "Air Control SRL" --assegna            crea le famiglie e le assegna (solo agli articoli senza famiglia)
+  py -3.15 proponi_famiglie.py --catalogo "Air Control SRL" [--min 3]            elenca i gruppi
+  py -3.15 proponi_famiglie.py --catalogo "Air Control SRL" --assegna            crea le famiglie e le assegna (solo agli articoli senza famiglia)
 
 La famiglia vera la decide una persona: dopo --assegna si rinominano/uniscono con SQL o a mano
 (es. update materiale set famiglia_id = <id buona> where famiglia_id = <id da unire>; delete from famiglia where id = <id da unire>).

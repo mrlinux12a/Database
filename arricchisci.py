@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """Riempie nel database `nomev1`, `nomev2` e gli attributi degli articoli di UN catalogo.
 
-  py -3.13 arricchisci.py                              -> catalogo "Air Control SRL", scrive nel database
-  py -3.13 arricchisci.py --catalogo "Acme SRL"        -> un altro catalogo (colonna `catalogo` di materiale)
-  py -3.13 arricchisci.py --catalogo "Acme SRL" --prova  -> calcola e mostra le statistiche, senza scrivere
+  py -3.15 arricchisci.py                              -> catalogo "Air Control SRL", scrive nel database
+  py -3.15 arricchisci.py --catalogo "Acme SRL"        -> un altro catalogo (colonna `catalogo` di materiale)
+  py -3.15 arricchisci.py --catalogo "Acme SRL" --prova  -> calcola e mostra le statistiche, senza scrivere
 
 Cosa fa
   * legge gli articoli di `materiale` di quel catalogo;

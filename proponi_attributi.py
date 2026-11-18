@@ -2,7 +2,7 @@
 """Cerca nel nomeV2 di un catalogo i pezzi di testo che si ripetono su molti articoli: sono candidati a diventare un attributo
 (e quindi a sparire dal nome, dando il nomeV3). Li scrive in `attributo_candidato` con stato 'proposto'; li approva una persona.
 
-  py -3.13 proponi_attributi.py --catalogo "Air Control SRL" [--min 5]
+  py -3.15 proponi_attributi.py --catalogo "Air Control SRL" [--min 5]
 """
 import argparse
 import collections

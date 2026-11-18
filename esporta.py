@@ -3,7 +3,7 @@
 Dentro ci sono SOLO: codice, nomeV1, nomeV2, famiglia, attributi (con origine e fonte), attributi candidati.
 Niente prezzi, sconti o altri dati commerciali.
 
-  py -3.13 esporta.py --catalogo "Acme SRL" [--out esportazioni/acme_srl.json.gz]
+  py -3.15 esporta.py --catalogo "Acme SRL" [--out esportazioni/acme_srl.json.gz]
 """
 import argparse
 import datetime

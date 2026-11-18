@@ -9,7 +9,7 @@ la colonna "Serie" del CSV di Air Control e' vuota.
 Ogni lancio rifa' da zero le righe di QUEL catalogo (cancella e reinserisce in un'unica transazione): si puo' rilanciare
 dopo aver cambiato l'Excel senza creare doppioni, e gli altri cataloghi gia' nel database non vengono toccati.
 
-Uso:  py -3.13 import_catalogo.py [--csv FILE] [--brand NOME_NELL_EXCEL] [--excel FILE] [--prova]
+Uso:  py -3.15 import_catalogo.py [--csv FILE] [--brand NOME_NELL_EXCEL] [--excel FILE] [--prova]
       --prova  mostra cosa entrerebbe, senza toccare il database
 Connessione: PGHOST, PGPORT, PGUSER, PGPASSWORD, PGDATABASE (default: localhost, 5432, postgres, nessuna password,
 db_serio_finale).
