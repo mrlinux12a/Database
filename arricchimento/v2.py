@@ -17,6 +17,9 @@ REGOLE = [
     ({"pn"}, r"\bPN\s?\d+(?:/\d+)?\b"),
     ({"lunghezza"}, r"\bbarra da \d+(?:[.,]\d+)? m\b"),
     ({"diametro", "attacco"}, r"Ø\d+(?:[/-]\d+)?"),
+    ({"attacco"}, r'\bG\d+(?:\.\d+/\d+|/\d+)?"'),                          # G3/8" G1/2" (filetto G scritto come attacco)
+    ({"lunghezza"}, r"\blunghezza\s+%s\s*(?:mm|cm|m)\b" % N),              # prima della misura sola, o resta «lunghezza»
+    ({"lunghezza_cavo"}, r"\b(?:con\s+)?capillare\s+%s\s*mm\b" % N),
     ({"dimensioni", "altezza", "lunghezza", "spessore"}, r"\b%s\s*x\s*%s(?:\s*x\s*%s)?\s*mm\b" % (N, N, N)),
     ({"dimensioni", "altezza", "lunghezza", "spessore"}, r"\b%s\s*mm\b" % N),
     ({"comando"}, r"(?<!\w)comando(?!\w)(?=\s*(?:,|$))"),
@@ -28,7 +31,7 @@ REGOLE = [
     ({"pressione", "taratura", "campo_regolazione"}, r"\b%s(?:\s*÷\s*%s)?\s*(?:bar|mbar|kPa|m c\.a\.)(?!\w)" % (N, N)),
     ({"campo_regolazione"}, r"\b%s\s*÷\s*%s\s*°C\b" % (N, N)),
     ({"potenza"}, r"\b%s\s*(?:kW|W|VA)\b" % N),
-    ({"frequenza"}, r"\b%s\s*Hz\b" % N),
+    ({"frequenza"}, r"\b%s\s*(?:k|M)?Hz\b" % N),
     ({"portata"}, r"\b%s(?:\s*÷\s*%s)?\s*(?:l/min|l/h)(?!\w)" % (N, N)),
     ({"volume_acqua"}, r"\b%s\s*l\b(?![/'])" % N),
     ({"coibentazione"}, r"\b(?:con coibentazione|coibentat[oaie])\b"),

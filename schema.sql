@@ -65,6 +65,16 @@ CREATE TABLE IF NOT EXISTS famiglia (
 );
 ALTER TABLE materiale ADD COLUMN IF NOT EXISTS famiglia_id integer REFERENCES famiglia(id);
 CREATE INDEX IF NOT EXISTS materiale_famiglia_idx ON materiale (famiglia_id);
+-- tipo_incerto: articoli messi in un tipo (famiglia) senza esserne sicuri. La scrive unisci_famiglie.py dalle regole di
+-- arricchimento/famiglie_comuni.py (si rifa' a ogni giro). principale = true: e' la famiglia_id dell'articolo, il tipo «piu'
+-- vicino» (in giallo nella pagina); principale = false: l'articolo sta ANCHE in questo tipo (indecisi tra due o piu' tipi).
+CREATE TABLE IF NOT EXISTS tipo_incerto (
+    codice      text    NOT NULL REFERENCES materiale(codice) ON DELETE CASCADE,
+    famiglia_id integer NOT NULL REFERENCES famiglia(id) ON DELETE CASCADE,
+    principale  boolean NOT NULL,
+    PRIMARY KEY (codice, famiglia_id)
+);
+CREATE INDEX IF NOT EXISTS tipo_incerto_famiglia_idx ON tipo_incerto (famiglia_id);
 
 -- attributo_candidato: testo che resta nel nomeV2 e si ripete su molti articoli = possibile nuovo attributo (poi nomeV3).
 -- Lo propone proponi_attributi.py; lo approva una persona (stato: proposto -> approvato | scartato).

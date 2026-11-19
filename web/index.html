@@ -12,13 +12,15 @@
     --ombra2: 0 6px 20px rgba(16,24,40,.10); --mark: #fff1b8;
     --ok-bg: #dcf2e4; --ok-t: #1b6638; --no-bg: #f1f2f4; --no-t: #5b6470; --pro-bg: #fdf0d5; --pro-t: #81500b;
     --l-tile: 93%; --l-tile-t: 30%; --s-tile: 62%;
+    --giallo-bg: #fff3c4; --giallo-t: #6b4f00; --giallo-l: #e3bf3c;
   }
   @media (prefers-color-scheme: dark) {
     :root { --bg: #121417; --card: #1b1e23; --testo: #e7eaee; --tenue: #a1aab5; --tenue2: #8f99a4; --linea: #2b3036; --linea2: #3a4048;
             --accento: #7d9cff; --accento-t: #0f1420; --accento-bg: #222b45; --accento-bg2: #2a3558;
             --riga: #20242a; --hover: #232a38; --ombra: 0 1px 2px rgba(0,0,0,.3); --ombra2: 0 8px 24px rgba(0,0,0,.45); --mark: #5a4a10;
             --ok-bg: #1d3a28; --ok-t: #8fd6a8; --no-bg: #2a2e34; --no-t: #a1aab5; --pro-bg: #463415; --pro-t: #f1c47a;
-            --l-tile: 24%; --l-tile-t: 82%; --s-tile: 35%; }
+            --l-tile: 24%; --l-tile-t: 82%; --s-tile: 35%;
+            --giallo-bg: #3b3112; --giallo-t: #f2d47c; --giallo-l: #8c6f1e; }
   }
   * { box-sizing: border-box; }
   html { scroll-padding-top: 80px; }
@@ -93,6 +95,41 @@
   .griglia { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
   a.fam { display: flex; flex-direction: column; gap: 12px; background: var(--card); border: 1px solid var(--linea); border-radius: 14px;
           padding: 16px; color: var(--testo); box-shadow: var(--ombra); transition: transform .12s, box-shadow .12s, border-color .12s; min-height: 148px; }
+  a.fam { position: relative; }
+  .lavori { position: absolute; top: 10px; right: 12px; display: flex; gap: 3px; align-items: flex-start; }
+  .lavori i { display: block; width: 5px; height: 16px; border-radius: 2px; background: #2ea043; }
+  .lavori i.migliorato { background: #3b9eff; }
+  .lavori i.nuovo, .legenda-lav i.nuovo, .sotto .sq-nuovo { background: #e5484d; }   /* famiglia o tipo nuovo, da approvare */
+  .sotto .sq-nuovo { display: inline-block; width: 5px; height: 12px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+  .sotto .nuovo-txt { color: #e5484d; font-weight: 600; }
+  a.fam.lav .testa { padding-right: 46px; }
+  .legenda-lav { display: inline-flex; align-items: center; gap: 10px; font-size: 12.5px; color: var(--tenue); }
+  .legenda-lav i { display: inline-block; width: 5px; height: 12px; border-radius: 2px; vertical-align: -2px; margin-right: 4px; }
+  details.varianti { margin-top: 12px; border: 1px solid var(--linea); border-radius: 12px; background: var(--card); }
+  details.varianti summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 9px 14px; font-weight: 600; font-size: 13.5px; user-select: none; }
+  details.varianti summary::-webkit-details-marker { display: none; }
+  details.varianti summary small { font-weight: 400; color: var(--tenue2); }
+  details.varianti summary .chev { margin-left: auto; width: 14px; height: 14px; color: var(--tenue2); transition: transform .15s; }
+  details.varianti[open] summary .chev { transform: rotate(180deg); }
+  .corpo-var { padding: 0 14px 12px; }
+  .lavori-var { font-size: 12.5px; color: var(--tenue); margin-bottom: 8px; display: grid; gap: 3px; }
+  .lavori-var .sq { display: inline-block; width: 5px; height: 12px; border-radius: 2px; background: #2ea043; margin-right: 7px; vertical-align: -2px; }
+  .lavori-var .sq.migliorato { background: #3b9eff; }
+  .var-lista { display: flex; flex-wrap: wrap; gap: 6px; max-height: 190px; overflow: auto; padding: 2px; }
+  button.var { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--linea2); background: var(--card); color: inherit; border-radius: 999px; padding: 3px 10px;
+               font: inherit; font-size: 12.5px; cursor: pointer; }
+  button.var:hover { background: var(--hover); }
+  button.var b { font-weight: 600; color: var(--tenue); font-variant-numeric: tabular-nums; }
+  button.var em { font-style: normal; font-size: 10.5px; background: var(--riga); border-radius: 4px; padding: 0 4px; color: var(--tenue); }
+  button.var.on { background: var(--accento); color: var(--accento-t); border-color: var(--accento); }
+  button.var.on b, button.var.on em { color: inherit; }
+  button.var.giallo { background: var(--giallo-bg); border-color: var(--giallo-l); color: var(--giallo-t); }
+  button.var.giallo:hover { filter: brightness(.97); }
+  button.var.giallo b, button.var.giallo em { color: inherit; }
+  button.var.giallo.on { background: var(--accento); color: var(--accento-t); border-color: var(--accento); }
+  button.var small { font-size: 11px; opacity: .85; }
+  .legenda-giallo { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--tenue); margin: 2px 0 8px; }
+  .legenda-giallo i { width: 12px; height: 12px; border-radius: 4px; background: var(--giallo-bg); border: 1px solid var(--giallo-l); flex: none; }
   a.fam:hover { text-decoration: none; transform: translateY(-2px); box-shadow: var(--ombra2); border-color: var(--linea2); }
   .fam .testa { display: flex; align-items: flex-start; gap: 12px; }
   .tile { width: 40px; height: 40px; border-radius: 10px; flex: none; display: grid; place-items: center; font-weight: 700; font-size: 15px;
@@ -119,8 +156,9 @@
   .layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 20px; align-items: start; }
   aside.filtri { position: sticky; top: 78px; max-height: calc(100vh - 92px); overflow: auto; background: var(--card);
                  border: 1px solid var(--linea); border-radius: 14px; box-shadow: var(--ombra);
-                 scrollbar-width: none; -ms-overflow-style: none; overscroll-behavior: contain; }
-  aside.filtri::-webkit-scrollbar { display: none; }
+                 scrollbar-width: thin; scrollbar-color: var(--linea2) transparent; overscroll-behavior: auto; }
+  aside.filtri::-webkit-scrollbar { width: 8px; }
+  aside.filtri::-webkit-scrollbar-thumb { background: var(--linea2); border-radius: 8px; }
   .filtri .intesta { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 10px; position: sticky; top: 0;
                      background: var(--card); z-index: 1; }
   .filtri .intesta h2 { font-size: 14px; margin: 0; display: flex; align-items: center; gap: 8px; }
@@ -521,7 +559,7 @@ function aggiornaContaCandidati() {
 
 /* ================= FAMIGLIE ================= */
 async function vistaFamiglie(p, nuova) {
-  const q = p.get("q") || "", ordine = p.get("ordine") || "n", soloComuni = p.get("comuni") === "1";
+  const q = p.get("q") || "", ordine = p.get("ordine") || "n", soloComuni = p.get("comuni") === "1", catSel = p.get("categoria") || "";
   const d = await famiglie(CATALOGO);
   let input = $("#cerca-fam");
   if (nuova || !input) {
@@ -543,31 +581,69 @@ async function vistaFamiglie(p, nuova) {
       h("div", { class: "griglia", id: "griglia" }));
   }
   function parametri(cambi) {
-    const s = { q, ordine: ordine === "n" ? "" : ordine, comuni: soloComuni ? "1" : "", ...cambi };
+    const s = { q, ordine: ordine === "n" ? "" : ordine, comuni: soloComuni ? "1" : "", categoria: catSel, ...cambi };
     return s;
   }
 
-  const parole = norm(q).split(/\s+/).filter(Boolean);
-  let lista = d.famiglie.filter((f) => parole.every((w) => norm(f.nome).includes(w)) && (!soloComuni || f.comune));
+  // la frase si legge come in web/ricerca.py: plurali (valvole = valvola), dritto = diritto, parole come «di», «a», «per» ignorate;
+  // una famiglia esce se il suo nome OPPURE uno dei suoi nomi alternativi (f.alias, da alias_famiglie.json) contiene tutte le parole
+  const STOP_RIC = new Set(["a", "ad", "al", "alla", "alle", "con", "da", "dei", "del", "della", "delle", "di", "e", "il", "in", "la", "le", "lo", "per", "su", "un", "una", "uno"]);
+  const radice = (w) => (/^\p{L}+$/u.test(w) && ((w.length >= 5 && "aeiou".includes(w.slice(-1))) || (w.length === 4 && w.endsWith("i")))) ? w.slice(0, -1) : w;
+  const paroleTutte = norm(q).replace(/\bdritt/g, "diritt").split(/\s+/).filter(Boolean);
+  const parole = (paroleTutte.some((w) => !STOP_RIC.has(w)) ? paroleTutte.filter((w) => !STOP_RIC.has(w)) : paroleTutte).map(radice);
+  const nomeNorm = (f) => norm(f.nome);
+  const aliasNorm = (f) => norm((f.alias || []).join(" "));
+  // se la famiglia esce solo grazie a un nome alternativo, quale (per dirlo sulla scheda)
+  const comeTrovata = (f) => (!q || parole.every((w) => nomeNorm(f).includes(w))) ? "" :
+    (f.alias || []).find((a) => parole.some((w) => norm(a).includes(w))) || "";
+  let lista = d.famiglie.filter((f) => parole.every((w) => (nomeNorm(f) + " " + aliasNorm(f)).includes(w)) && (!soloComuni || f.comune));
   if (ordine === "az") lista = [...lista].sort((a, b) => a.nome.localeCompare(b.nome, "it"));
   const nComuni = d.famiglie.filter((f) => f.comune).length;
+  // categorie: le famiglie che cominciano con la stessa parola (almeno 3: «Valvola di sicurezza», «Valvola a sfera»...) si
+  // raccolgono in una scheda «Valvola»; la categoria e' solo un modo di navigare, le famiglie restano quelle
+  const catParola = (f) => norm(f.nome).split(/[\s\/,]+/)[0];
+  const perCat = {};
+  for (const f of d.famiglie) (perCat[catParola(f)] = perCat[catParola(f)] || []).push(f);
+  const categorie = Object.entries(perCat).filter(([, v]) => v.length >= 3);
+  const inCat = new Set(categorie.map(([k]) => k));
+  const nomeCat = (v) => { const w = v[0].nome.split(/[\s\/,]+/)[0]; return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(); };
+  const raggruppa = !q && !soloComuni && !catSel;
+  if (catSel) lista = lista.filter((f) => catParola(f) === catSel);
+  else if (raggruppa) lista = lista.filter((f) => !inCat.has(catParola(f)));
 
   const seg = (val, testo) => h("button", { type: "button", "aria-pressed": String(ordine === val),
     onclick: () => vai(indirizzo("famiglie", "", parametri({ ordine: val === "n" ? "" : val })), true) }, testo);
   riempi($("#barra-fam"), 
-    h("span", { class: "info" }, q ? fmt(lista.length) + " famiglie su " + fmt(d.famiglie.length)
+    catSel ? h("a", { class: "btn piatto", href: indirizzo("famiglie", "", { ordine: ordine === "n" ? "" : ordine }) }, icona("sx"), "Tutte le famiglie") : null,
+    h("span", { class: "info" }, catSel ? nomeCat(perCat[catSel] || [{ nome: catSel }]) + " · " + fmt(lista.length) + " tipi · " + fmt(lista.reduce((a, f) => a + f.n, 0)) + " articoli"
+      : q ? fmt(lista.length) + " famiglie su " + fmt(d.famiglie.length)
       : fmt(d.famiglie.length) + " famiglie · " + fmt(d.totale) + " articoli"),
+    d.famiglie.some((f) => (f.lavori || []).length || f.nuova) ? h("span", { class: "legenda-lav", title: "Dove abbiamo già lavorato al raggruppamento delle famiglie; in rosso le famiglie e i tipi nuovi, da approvare" },
+      h("span", null, h("i", { style: "background:#2ea043" }), "raggruppato"), h("span", null, h("i", { style: "background:#3b9eff" }), "migliorato"),
+      d.famiglie.some((f) => f.nuova) ? h("span", null, h("i", { class: "nuovo" }), "nuovo") : null) : null,
     nComuni ? h("label", { class: "opz", style: "font-size:13.5px" },
       h("input", { type: "checkbox", checked: soloComuni, onchange: (e) => vai(indirizzo("famiglie", "", parametri({ comuni: e.target.checked ? "1" : "" })), true) }),
       "Solo in comune tra cataloghi (" + nComuni + ")") : null,
     h("div", { class: "segmenti", role: "group", "aria-label": "Ordina le famiglie" }, seg("n", "Più articoli"), seg("az", "A–Z")));
 
-  const schede = lista.map(schedaFamiglia);
-  if (d.senza_famiglia && !q && !soloComuni) schede.push(h("a", { class: "fam senza", href: indirizzo("famiglia", "senza") },
+  let elementi = lista.map((f) => ({ n: f.n, nome: f.nome, el: schedaFamiglia(f, comeTrovata(f)) }));
+  if (raggruppa) for (const [k, v] of categorie) {
+    const n = v.reduce((a, f) => a + f.n, 0), nome = nomeCat(v), top = [...v].sort((a, b) => b.n - a.n).slice(0, 4);
+    const lavC = lavoriUniti(v), nuoveC = nuoveDi(v);
+    elementi.push({ n, nome, el: h("a", { class: "fam" + (lavC.length || nuoveC.length ? " lav" : ""), href: indirizzo("famiglie", "", { categoria: k }) },
+      barretteLavori(lavC, nuoveC),
+      h("div", { class: "testa" }, h("div", { class: "tile", style: "--h:" + tinta(nome), "aria-hidden": "true" }, iniziali(nome)),
+        h("div", null, h("h2", null, nome), h("div", { class: "n" }, h("b", null, fmt(v.length)), " tipi · ", h("b", null, fmt(n)), " articoli"))),
+      h("div", { class: "attr", title: v.map((f) => f.nome).join("\n") },
+        top.map((f) => h("span", { class: "pill" }, f.nome.replace(/^\S+\s*/, "") || f.nome)), v.length > 4 ? h("span", { class: "pill" }, "+" + (v.length - 4)) : null)) });
+  }
+  if (ordine === "az") elementi.sort((a, b) => a.nome.localeCompare(b.nome, "it")); else if (raggruppa) elementi.sort((a, b) => b.n - a.n);
+  const schede = elementi.map((e) => e.el);
+  if (d.senza_famiglia && !q && !soloComuni && !catSel) schede.push(h("a", { class: "fam senza", href: indirizzo("famiglia", "senza") },
     h("div", { class: "testa" }, h("div", { class: "tile", style: "--h:220" }, "?"),
       h("div", null, h("h2", null, "Senza famiglia"), h("div", { class: "n" }, h("b", null, fmt(d.senza_famiglia)), " articoli"))),
     h("div", { class: "piede" }, "Articoli a cui non è ancora stata assegnata una famiglia")));
-  if (!q && !soloComuni) {
+  if (!q && !soloComuni && !catSel) {
     await caricaFotoN();
     if (FOTO_N) for (const [k, tinta_, nota] of [["senza", 0, "Articoli di cui non c'è ancora nessuna foto"], ["bassa", 25, "Foto troppo piccola o poco nitida: da sostituire"],
         ["dubbia", 40, "Foto abbinata per serie o per somiglianza: da controllare"]])
@@ -592,11 +668,33 @@ async function vistaFamiglie(p, nuova) {
     r.totale ? h("a", { class: "btn primario", href: indirizzo("cerca", "", { q }) }, "Vedi gli articoli", icona("dx")) : null);
 }
 
-function schedaFamiglia(f) {
+// barrette in alto a destra: una per ogni lavoro di raggruppamento (verde = fatto, azzurra = aggiornato/migliorato)
+const dataIt = (d) => (d || "").split("-").reverse().join("/");
+// + una barretta ROSSA (la prima) se la famiglia, o un tipo della categoria, e' nuovo e non ancora approvato (famiglie_nuove.json)
+const testoNuovo = (x) => "Nuov" + (x.tipo === "tipo" ? "o tipo" : "a famiglia") + " «" + x.nome + "» · " + x.catalogo + " · " + dataIt(x.data) + " — da approvare";
+function barretteLavori(lavori, nuove) {
+  lavori = lavori || []; nuove = nuove || [];
+  if (!lavori.length && !nuove.length) return null;
+  const titolo = nuove.map(testoNuovo).concat(lavori.map((l) => (l.tipo === "migliorato" ? "Migliorato" : "Raggruppamento") + " · " + dataIt(l.data) + (l.nota ? " — " + l.nota : ""))).join("\n");
+  const etichetta = [nuove.length ? (nuove.length === 1 ? "nuovo" : nuove.length + " nuovi") : "", lavori.length ? lavori.length + (lavori.length === 1 ? " lavoro" : " lavori") + " di raggruppamento" : ""].filter(Boolean).join(", ");
+  return h("span", { class: "lavori", title: titolo, "aria-label": etichetta },
+    nuove.length ? h("i", { class: "nuovo" }) : null,
+    lavori.slice(0, 8).map((l) => h("i", { class: l.tipo === "migliorato" ? "migliorato" : "" })));
+}
+const nuoveDi = (famiglieLista) => famiglieLista.filter((f) => f.nuova).map((f) => ({ ...f.nuova, nome: f.nome }));
+function lavoriUniti(famiglieLista) {     // i lavori di una categoria = quelli delle sue famiglie, senza doppioni
+  const visti = new Map();
+  for (const f of famiglieLista) for (const l of f.lavori || []) if (!visti.has(l.id)) visti.set(l.id, l);
+  return [...visti.values()].sort((a, b) => (a.data || "").localeCompare(b.data || "") || String(a.id).localeCompare(String(b.id)));
+}
+
+function schedaFamiglia(f, comeTrovata) {
   const attr = f.attributi.slice(0, 4);
   const altri = f.attributi.length - attr.length;
   const altriCat = Object.keys(f.cataloghi).filter((c) => c !== CATALOGO);
-  return h("a", { class: "fam", href: indirizzo("famiglia", f.id) },
+  return h("a", { class: "fam" + ((f.lavori || []).length || f.nuova ? " lav" : ""), href: indirizzo("famiglia", f.id) },
+    barretteLavori(f.lavori, nuoveDi([f])),
+    comeTrovata ? h("div", { class: "piede", title: "Questa famiglia si chiama anche così" }, "Trovata come «" + comeTrovata + "»") : null,
     h("div", { class: "testa" },
       h("div", { class: "tile", style: "--h:" + tinta(f.nome), "aria-hidden": "true" }, iniziali(f.nome)),
       h("div", null, h("h2", null, f.nome), h("div", { class: "n" }, h("b", null, fmt(f.n)), f.n === 1 ? " articolo" : " articoli"))),
@@ -613,7 +711,7 @@ const A = { ctrl: null, aperti: new Set(), chiusi: new Set(), espansi: new Set()
 function statoArticoli(vista, id, p) {
   return {
     vista, id, q: p.get("q") || "", pagina: Math.max(1, parseInt(p.get("pagina") || "1", 10) || 1),
-    foto: ["senza", "bassa", "dubbia", "con"].includes(p.get("foto")) ? p.get("foto") : "",
+    foto: ["senza", "bassa", "dubbia", "con"].includes(p.get("foto")) ? p.get("foto") : "", v2: p.get("v2") || "",
     ordine: p.get("ordine") || "nome", verso: p.get("verso") === "desc" ? "desc" : "asc", modo: p.get("modo") === "schede" ? "schede" : "tabella",
     filtri: p.getAll("f").filter((f) => f.includes("::")).map((f) => { const i = f.indexOf("::"); return [f.slice(0, i), f.slice(i + 2)]; }),
   };
@@ -624,6 +722,7 @@ function hashArticoli(s, cambi) {
   if (t.q) p.set("q", t.q);
   for (const [k, v] of t.filtri) p.append("f", k + "::" + v);
   if (t.foto) p.set("foto", t.foto);
+  if (t.v2) p.set("v2", t.v2);
   if (t.ordine !== "nome") p.set("ordine", t.ordine);
   if (t.verso === "desc") p.set("verso", "desc");
   if (t.modo !== "tabella") p.set("modo", t.modo);
@@ -636,6 +735,7 @@ function paramApi(s, extra) {
   if (s.vista === "famiglia") p.set("famiglia", s.id === "senza" ? "-1" : s.id);
   if (s.q) p.set("q", s.q);
   if (s.foto) p.set("foto", s.foto);
+  if (s.v2) p.set("v2", s.v2);
   for (const [k, v] of s.filtri) p.append("f", k + "::" + v);
   return p;
 }
@@ -648,6 +748,9 @@ async function vistaArticoli(vista, id, p, nuova) {
     const f = id === "senza" ? { nome: "Senza famiglia" } : d.famiglie.find((x) => String(x.id) === id);
     titolo = f ? f.nome : "Famiglia";
     if (f && f.comune) sotto = "In " + Object.entries(f.cataloghi).map(([c, n]) => c + " (" + fmt(n) + ")").join(", ");
+    if (f && f.nuova) sotto = [h("span", { class: "nuovo-txt" }, h("i", { class: "sq-nuovo" }),
+      (f.nuova.tipo === "tipo" ? "Tipo nuovo" : "Famiglia nuova") + " (" + f.nuova.catalogo + ", " + dataIt(f.nuova.data) + "), da approvare"),
+      sotto ? " · " + sotto : ""];
   } else {
     titolo = s.q ? "Risultati per «" + s.q + "»" : s.foto ? TITOLI_FOTO[s.foto] : "Tutti gli articoli";
   }
@@ -664,7 +767,7 @@ async function vistaArticoli(vista, id, p, nuova) {
       h("nav", { class: "briciole", "aria-label": "Percorso" }, h("a", { href: indirizzo("famiglie") }, "Famiglie"), icona("dx"),
         h("span", { id: "bric-titolo" }, titolo)),
       h("div", { class: "testa-art" },
-        h("div", null, h("h1", { id: "titolo-art" }, titolo), h("p", { class: "sotto", id: "sotto-art" }, sotto), h("div", { class: "comuni", id: "comuni" }))),
+        h("div", null, h("h1", { id: "titolo-art" }, titolo), h("p", { class: "sotto", id: "sotto-art" }, sotto), h("div", { class: "comuni", id: "comuni" }), h("div", { id: "varianti" }))),
       h("div", { class: "layout" },
         h("aside", { class: "filtri", id: "filtri", "aria-label": "Filtri" },
           h("div", { class: "intesta" }, h("h2", null, icona("filtro"), "Filtri"), h("button", { type: "button", class: "btn piatto", id: "azzera", hidden: true }, "Azzera")),
@@ -689,6 +792,48 @@ async function vistaArticoli(vista, id, p, nuova) {
   disegnaComuni(fac, s);
   disegnaFaccette(fac, s);
   disegnaRisultati(art, fac, s);
+  disegnaVarianti(vista, id, s);
+}
+
+/* ---- cosa e' stato raggruppato in questo tipo: le famiglie che vi sono confluite (solo dove c'e' un lavoro di raggruppamento) ---- */
+const VARIANTI = new Map();
+async function disegnaVarianti(vista, id, s) {
+  const box = $("#varianti");
+  if (!box) return;
+  if (vista !== "famiglia" || id === "senza") { riempi(box); return; }
+  const f = await famiglie(CATALOGO);
+  const fam = f.famiglie.find((x) => String(x.id) === id) || {};
+  const lavori = fam.lavori || [];
+  if (!lavori.length) { riempi(box); return; }
+  const chiave = id + "|" + CATALOGO;
+  if (!VARIANTI.has(chiave)) VARIANTI.set(chiave, api("/api/varianti", new URLSearchParams({ famiglia: id, ...(CATALOGO ? { catalogo: CATALOGO } : {}) })));
+  let v;
+  try { v = await VARIANTI.get(chiave); } catch (e) { VARIANTI.delete(chiave); return; }
+  if ($("#varianti") !== box) return;
+  const vai2 = (x) => vai(hashArticoli(statoArticoli(vista, id, leggiHash().p), { v2: s.v2 === x.v2 ? "" : x.v2, pagina: 1 }));
+  /* giallo = non sicuri: messo nel tipo piu' vicino (incerti) o indecisi tra piu' tipi (anche / extra) */
+  const dubbio = (x) => x.extra ? "Sta in «" + x.anche.join("», «") + "» e ANCHE qui: indecisi tra più tipi."
+    : (x.anche || []).length ? "Indecisi tra più tipi: sta qui e ANCHE in «" + x.anche.join("», «") + "»."
+    : x.incerti ? (x.incerti === x.n ? "" : x.incerti + " di " + x.n + " articoli: ") + "messo nel tipo più vicino, non è sicuro che sia questo." : "";
+  const chip = (x, testo) => h("button", { type: "button", disabled: !x.v2 || !x.n,
+    class: "var" + (x.incerti || x.extra ? " giallo" : "") + (x.v2 && s.v2 === x.v2 ? " on" : ""),
+    title: (x.nome || x.v2) + "\n" + (Object.entries(x.cataloghi).map(([c, n]) => c + ": " + n).join("\n") || "nessun articolo con questo nome")
+      + (dubbio(x) ? "\n\n" + dubbio(x) : ""),
+    onclick: () => vai2(x) }, testo, x.n ? h("b", null, fmt(x.n)) : null,
+    (x.anche || []).length ? h("small", null, (x.extra ? "da " : "anche in ") + x.anche.join(", ")) : null,
+    !CATALOGO ? Object.keys(x.cataloghi).map((c) => h("em", null, c.slice(0, 2))) : null);
+  const det = h("details", { class: "varianti", open: true },
+    h("summary", null, "Famiglie raggruppate in questo tipo", h("small", null, fmt(v.n_famiglie) + (v.n_famiglie === 1 ? " famiglia" : " famiglie")), icona("giu", "chev")),
+    h("div", { class: "corpo-var" },
+      h("div", { class: "lavori-var" }, lavori.map((l) => h("div", null,
+        h("i", { class: "sq" + (l.tipo === "migliorato" ? " migliorato" : "") }), h("b", null, dataIt(l.data) + " · "), l.nota))),
+      v.n_gialli ? h("div", { class: "legenda-giallo" }, h("i"), "In giallo: " + fmt(v.n_gialli) + (v.n_gialli === 1 ? " articolo" : " articoli")
+        + " non sicuri (messi nel tipo più vicino, o in più tipi perché indecisi: «anche in» / «da»). Passa sopra per il dettaglio.") : null,
+      v.famiglie.length ? h("div", { class: "var-lista" }, v.famiglie.map((x) => chip(x, x.base ? x.nome + " (già così)" : x.nome)))
+        : h("p", { class: "nota" }, "Questo tipo non ha assorbito altre famiglie: aveva già questo nome."),
+      v.n_altre ? h("p", { class: "nota" }, "Altri " + fmt(v.n_altre) + " articoli entrati per il nome (erano senza famiglia o in una famiglia generica):") : null,
+      v.n_altre ? h("div", { class: "var-lista" }, v.altre.map((x) => chip(x, x.v2))) : null));
+  riempi(box, det);
 }
 
 const TITOLI_FOTO = { senza: "Articoli senza foto", bassa: "Articoli con foto di qualità bassa", dubbia: "Articoli con foto da verificare", con: "Articoli con foto" };
@@ -757,15 +902,18 @@ function disegnaFaccette(fac, s) {
     det.addEventListener("toggle", () => { if (det.open) { A.aperti.add(a.chiave); A.chiusi.delete(a.chiave); } else { A.chiusi.add(a.chiave); A.aperti.delete(a.chiave); } });
     return det;
   });
+  const pannello = $("#filtri"), posizione = pannello ? pannello.scrollTop : 0;    // rifare le faccette non deve riportare in cima
   riempi($("#faccette"), ...(gruppi.length ? gruppi
     : [h("p", { class: "nulla" }, fac.totale ? "Nessun attributo distingue questi articoli." : "Nessun articolo.")]));
+  if (pannello) pannello.scrollTop = posizione;
 }
 
 function disegnaRisultati(d, fac, s) {
   A.righe = d.righe;
   A.cartellaFoto = d.cartella_foto || "foto";
   // filtri attivi
-  riempi($("#attivi"), ...s.filtri.map(([k, v]) => h("button", { type: "button", class: "chip", title: "Togli questo filtro",
+  riempi($("#attivi"), s.v2 ? h("button", { type: "button", class: "chip", title: "Togli questa variante", onclick: () => vai(hashArticoli(s, { v2: "", pagina: 1 })) },
+    h("span", null, "Variante:"), s.v2, icona("x")) : null, ...s.filtri.map(([k, v]) => h("button", { type: "button", class: "chip", title: "Togli questo filtro",
     onclick: () => vai(hashArticoli(s, { filtri: s.filtri.filter(([a, b]) => !(a === k && b === v)), pagina: 1 })) },
     h("span", null, etichetta(k) + ":"), v, icona("x"))));
 

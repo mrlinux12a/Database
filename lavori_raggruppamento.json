@@ -1,0 +1,444 @@
+{
+  "lavori": [
+    {
+      "id": "2026-11-19-valvole",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Prova sulle valvole: 83 famiglie «valvola» raggruppate in 16 tipi (regole in arricchimento/famiglie_comuni.py).",
+      "famiglie": [
+        "Valvola di intercettazione combustibile",
+        "Valvola di sicurezza",
+        "Valvola di zona",
+        "Valvola deviatrice",
+        "Valvola a sfera",
+        "Valvola a farfalla",
+        "Valvola miscelatrice",
+        "Valvola termostatica / termostatizzabile",
+        "Valvola di bilanciamento",
+        "Valvola di sfogo aria",
+        "Valvola di ritegno",
+        "Valvola di regolazione",
+        "Valvola anticondensa / antigelo / antitermosifone",
+        "Valvola manuale",
+        "Valvola monotubo / bitubo",
+        "Valvola motorizzata"
+      ]
+    },
+    {
+      "id": "2026-11-19-raccordo-a-pressare",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Raccordi: 36 famiglie «raccordo» raggruppate in 11 tipi (bicono e a pressare dal testo della descrizione). Raccordo tee e gomito vanno in Tee e Curva / Gomito.",
+      "famiglie": [
+        "Raccordo a pressare",
+        "Raccordo bicono",
+        "Raccordo diritto",
+        "Raccordo adattatore",
+        "Raccordo meccanico",
+        "Raccordo di testa",
+        "Raccordo con attacco radiale",
+        "Raccordo bocchettone",
+        "Raccordo monoblocco",
+        "Raccordo di collegamento",
+        "Raccordo a croce"
+      ]
+    },
+    {
+      "id": "2026-11-19-plenum-per-bocchetta",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Plenum: 34 famiglie in 6 tipi (modello PSF/PSB..., chiuso/aperto, M-m, VMC restano nel nome). In giallo: i «Plenum bocchetta per <macchina>» (PLMB) in mandata e anche per bocchetta; plenum chiusi/universali in mandata e anche in ripresa.",
+      "famiglie": [
+        "Plenum per bocchetta",
+        "Plenum di mandata",
+        "Plenum di ripresa",
+        "Plenum cablato",
+        "Plenum per griglia",
+        "Plenum per diffusore"
+      ]
+    },
+    {
+      "id": "2026-11-19-portabocchetta",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Portabocchetta: 13 famiglie (PLP/PLPS, chiuso/aperto, L...) in 1 tipo.",
+      "famiglie": [
+        "Portabocchetta"
+      ]
+    },
+    {
+      "id": "2026-11-19-diffusore-lineare",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Diffusori: 22 famiglie in 7 tipi (lineare con DLF/DLN «a goccia», circolare, ad alette curve; elicoidale, forellinato, lunga gittata, multidirezione erano gia' tipi).",
+      "famiglie": [
+        "Diffusore lineare",
+        "Diffusore circolare",
+        "Diffusore ad alette curve"
+      ]
+    },
+    {
+      "id": "2026-11-19-griglia-di-ripresa",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Griglie: 19 famiglie in 4 tipi (con filtro/rete/maglia sono varianti della griglia di ripresa). In giallo: «Griglia + rete + deviax. flusso» nella circolare.",
+      "famiglie": [
+        "Griglia di ripresa",
+        "Griglia di transito",
+        "Griglia circolare",
+        "Griglia pedonabile"
+      ]
+    },
+    {
+      "id": "2026-11-19-serranda-tagliafuoco",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Serrande: 19 famiglie in 6 tipi. In giallo: «Serranda circolare BTT25» in tagliafuoco (stesso modello); «circolare con perno DBS» in taratura e anche in regolazione.",
+      "famiglie": [
+        "Serranda tagliafuoco",
+        "Serranda di taratura",
+        "Serranda di regolazione",
+        "Serranda motorizzata",
+        "Serranda di bypass",
+        "Serranda captatrice"
+      ]
+    },
+    {
+      "id": "2026-11-19-bocchetta-a-barre-fisse",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Bocchette: 9 famiglie in 4 tipi (LAF10...25 sono modelli; la motorizzata resta a parte).",
+      "famiglie": [
+        "Bocchetta a barre fisse",
+        "Bocchetta di mandata",
+        "Bocchetta per canali circolari"
+      ]
+    },
+    {
+      "id": "2026-11-19-silenziatore-circolare",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Silenziatori: 6 famiglie in 2 tipi. In giallo: «Silenziatore isolato» nel flessibile.",
+      "famiglie": [
+        "Silenziatore circolare",
+        "Silenziatore flessibile"
+      ]
+    },
+    {
+      "id": "2026-11-19-controtelaio",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Controtelaio: 3 famiglie in 1 tipo.",
+      "famiglie": [
+        "Controtelaio"
+      ]
+    },
+    {
+      "id": "2026-11-19-regolatore-di-pressione-differ",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Regolatori: 10 famiglie in 7 tipi (+ climatici e digitali che non avevano famiglia). In giallo: il digitale modulante con pompa, anche nei gruppi di regolazione.",
+      "famiglie": [
+        "Regolatore di pressione differenziale",
+        "Regolatore di portata",
+        "Regolatore climatico",
+        "Regolatore digitale"
+      ]
+    },
+    {
+      "id": "2026-11-19-kit-di-distribuzione",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Kit: per tipo (distribuzione, coibentazione, valvola + detentore + testa...). In giallo: i kit coibentazione stanno anche in Coibentazione; «Valvola + detentore + testa» senza la parola kit.",
+      "famiglie": [
+        "Kit di distribuzione",
+        "Kit coibentazione",
+        "Kit valvola + detentore + testa termostatica",
+        "Kit centrale termica",
+        "Kit comandi",
+        "Kit cablaggio serrande",
+        "Kit di fissaggio",
+        "Kit eccentrico",
+        "Kit mix con by-pass antilegionella",
+        "Kit termostato di sicurezza",
+        "Kit di continuità"
+      ]
+    },
+    {
+      "id": "2026-11-19-miscelatore-termostatico",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Miscelatori: 13 famiglie in 2 tipi (Solar, NHS, regolabile, con ritegno, Legiomix Evo sono varianti/gamme).",
+      "famiglie": [
+        "Miscelatore termostatico",
+        "Miscelatore antilegionella"
+      ]
+    },
+    {
+      "id": "2026-11-19-riduttore-di-pressione",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Riduttori di pressione: 13 famiglie in 1 tipo (manometro, filtro, inclinato, stadi sono varianti).",
+      "famiglie": [
+        "Riduttore di pressione"
+      ]
+    },
+    {
+      "id": "2026-11-19-gruppo-di-regolazione",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Gruppi: per tipo (regolazione, distribuzione, circolazione, riempimento/caricamento...). Gruppo collettore -> Collettore e gruppo disconnettore -> Disconnettore (in giallo); commutazione/distribuzione anche in distribuzione.",
+      "famiglie": [
+        "Gruppo di regolazione",
+        "Gruppo di distribuzione",
+        "Gruppo di commutazione/distribuzione",
+        "Gruppo di circolazione",
+        "Gruppo di riempimento / caricamento",
+        "Gruppo di collegamento",
+        "Gruppo di sicurezza",
+        "Gruppo controllo temperatura",
+        "Gruppo di testa"
+      ]
+    },
+    {
+      "id": "2026-11-19-collettore",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Coppie: «Coppia» non e' un tipo. Coppia collettori -> Collettore, coppia valvole a sfera -> Valvola a sfera, coppia bocchettoni -> Bocchettone, valvola + detentore in un tipo. Gruppo collettore in Collettore (giallo).",
+      "famiglie": [
+        "Collettore",
+        "Coppia valvola e detentore"
+      ]
+    },
+    {
+      "id": "2026-11-19-filtro-a-y",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Filtri: per tipo (a Y, per gas dal testo «per gas», ispezionabile). In giallo: filtro regolatore per gas; i filtri defangatori vanno in Defangatore (giallo).",
+      "famiglie": [
+        "Filtro a Y",
+        "Filtro per gas",
+        "Filtro ispezionabile"
+      ]
+    },
+    {
+      "id": "2026-11-19-bocchettone",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Bocchettoni: 7 famiglie + raccordo bocchettone + coppia bocchettoni in 1 tipo (diritto/curvo sono la forma).",
+      "famiglie": [
+        "Bocchettone"
+      ]
+    },
+    {
+      "id": "2026-11-19-contatore-volumetrico",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Contatori: 7 famiglie in 2 tipi. In giallo: Conteca Easy in «di calore» (non e' scritto; ha pozzetti di mandata e ritorno), contatori con valvola nel volumetrico.",
+      "famiglie": [
+        "Contatore volumetrico",
+        "Contatore di calore"
+      ]
+    },
+    {
+      "id": "2026-11-19-defangatore",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Defangatori: 6 famiglie in 1 tipo (Dirtmag, Dirtcal = gamme). In giallo: filtri defangatori; separatore con filtro magnetico anche in Separatore idraulico.",
+      "famiglie": [
+        "Defangatore"
+      ]
+    },
+    {
+      "id": "2026-11-19-cartuccia",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Ricambi: «Ricambio» non e' un tipo. Ricambio cartuccia + cartucce -> Cartuccia; ricambio vitone + vitoni -> Vitone.",
+      "famiglie": [
+        "Cartuccia",
+        "Vitone"
+      ]
+    },
+    {
+      "id": "2026-11-19-stabilizzatore-di-portata",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Stabilizzatori Autoflow: 6 famiglie in 1 tipo (Autoflow = gamma).",
+      "famiglie": [
+        "Stabilizzatore di portata"
+      ]
+    },
+    {
+      "id": "2026-11-19-tee-di-bypass",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Tee di bypass: 5 famiglie (U4, U6, U8, senza ugello) in 1 tipo; non sono raccordi a T.",
+      "famiglie": [
+        "Tee di bypass"
+      ]
+    },
+    {
+      "id": "2026-11-19-collare",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Collari: Aquatechnik in «Collare» (in giallo con protezione, con flangia, con calotta), Air Control in «Collare di fissaggio».",
+      "famiglie": [
+        "Collare",
+        "Collare di fissaggio"
+      ]
+    },
+    {
+      "id": "2026-11-19-detentore",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Detentori: 5 famiglie in 1 tipo (squadra, diritto, doppia squadra = forma).",
+      "famiglie": [
+        "Detentore"
+      ]
+    },
+    {
+      "id": "2026-11-19-vaso-di-espansione",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Vasi di espansione: 5 famiglie in 1 tipo.",
+      "famiglie": [
+        "Vaso di espansione"
+      ]
+    },
+    {
+      "id": "2026-11-19-corpo-raccordo",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Corpo raccordo: diritto, gomito, tee in 1 tipo.",
+      "famiglie": [
+        "Corpo raccordo"
+      ]
+    },
+    {
+      "id": "2026-11-19-disconnettore",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Disconnettori: 4 famiglie in 1 tipo. In giallo: gruppo disconnettore con filtro e valvola.",
+      "famiglie": [
+        "Disconnettore"
+      ]
+    },
+    {
+      "id": "2026-11-19-espansore",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Espansori ed estrattori: 6 famiglie in 2 tipi.",
+      "famiglie": [
+        "Espansore",
+        "Estrattore per espansore"
+      ]
+    },
+    {
+      "id": "2026-11-19-giunto-estensibile",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Giunti estensibili: 2 famiglie (lunghezze) in 1 tipo.",
+      "famiglie": [
+        "Giunto estensibile"
+      ]
+    },
+    {
+      "id": "2026-11-19-modulo-d'utenza",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Moduli: in giallo i moduli Conteca e Plurimod (non c'e' scritto «utenza») nel modulo d'utenza.",
+      "famiglie": [
+        "Modulo d'utenza"
+      ]
+    },
+    {
+      "id": "2026-11-19-rubinetto-di-arresto",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Rubinetti: per tipo. Il rubinetto d'intercettazione a sfera va in Valvola a sfera; quello a sfera con portagomma in Valvola a sfera e anche in scarico (giallo).",
+      "famiglie": [
+        "Rubinetto di arresto",
+        "Rubinetto di scarico",
+        "Rubinetto di intercettazione",
+        "Rubinetto portamanometro"
+      ]
+    },
+    {
+      "id": "2026-11-19-separatore-idraulico",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Separatori idraulici: 3 famiglie in 1 tipo. In giallo: separatori esterni Sepcoll; separatore con filtro magnetico.",
+      "famiglie": [
+        "Separatore idraulico"
+      ]
+    },
+    {
+      "id": "2026-11-19-coibentazione",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Coibentazioni: 3 famiglie in 1 tipo, con i kit coibentazione anche qui (giallo).",
+      "famiglie": [
+        "Coibentazione"
+      ]
+    },
+    {
+      "id": "2026-11-19-pozzetto",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Pozzetti: 3 famiglie in 1 tipo.",
+      "famiglie": [
+        "Pozzetto"
+      ]
+    },
+    {
+      "id": "2026-11-19-disaeratore",
+      "data": "2026-11-19",
+      "tipo": "nuovo",
+      "nota": "Coppie di famiglie con lo stesso tipo (Discal Solar, per Conteca, spessore, senza pompa, Faser Fiber-T, tessile... sono varianti).",
+      "famiglie": [
+        "Disaeratore",
+        "Integratore",
+        "O-ring",
+        "Satellite",
+        "Sorpasso",
+        "Codolo",
+        "Bobina",
+        "Attacco a sella",
+        "Innesto diretto",
+        "Canale microforato"
+      ]
+    },
+    {
+      "id": "2026-11-19-valvola-a-sfera",
+      "data": "2026-11-19",
+      "tipo": "migliorato",
+      "nota": "Ricontrollo valvole: in giallo i tipi non sicuri (bypass differenziale, modulante, intercettazione/preregolazione, 3 vie motorizzata, scarico fluido serie 108, antiaspirazione, flangiata per Legiomix); Flowmatic in bilanciamento e anche in regolazione. Zona e deviatrice «a sfera» restano nel loro tipo (la sfera e' l'otturatore).",
+      "famiglie": [
+        "Valvola a sfera",
+        "Valvola di bilanciamento",
+        "Valvola di regolazione",
+        "Valvola di sfogo aria",
+        "Valvola anticondensa / antigelo / antitermosifone",
+        "Valvola miscelatrice",
+        "Valvola motorizzata",
+        "Kit valvola + detentore + testa termostatica"
+      ]
+    },
+    {
+      "id": "2026-11-19-raccordo-diritto",
+      "data": "2026-11-19",
+      "tipo": "migliorato",
+      "nota": "Ricontrollo raccordi: raccordo bocchettone -> Bocchettone; diritto Solar «a bocchettone» anche in Bocchettone; meccanici Darcal anche in adattatore. In giallo nel tipo piu' vicino: Adattatore Darcal, eurocono, portatermometro, serie 383, derivazione (Tee), per valvola di sfogo aria e F x M (Riduzione).",
+      "famiglie": [
+        "Raccordo diritto",
+        "Raccordo adattatore",
+        "Raccordo meccanico",
+        "Raccordo con attacco radiale",
+        "Raccordo di collegamento",
+        "Bocchettone",
+        "Tee",
+        "Riduzione"
+      ]
+    }
+  ]
+}

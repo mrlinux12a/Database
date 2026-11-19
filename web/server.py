@@ -48,7 +48,9 @@ from psycopg2.pool import ThreadedConnectionPool
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(BASE))
+sys.path.insert(0, BASE)
 import arricchimento  # noqa: E402,F401  (legge il file .env)
+import ricerca  # noqa: E402  (come si legge la frase di ricerca: alias delle famiglie, misure, plurali)
 INDEX = os.path.join(BASE, "index.html")
 
 # ---- foto degli articoli ---------------------------------------------------------------------------------------------
@@ -262,6 +264,15 @@ def con_cursore(funzione):
 
 
 _RICHIESTA = threading.local()     # parametri della richiesta in corso che non passano da tutte le funzioni (filtro foto)
+_TIPO_INCERTO = [False]
+
+
+def ha_tipo_incerto():
+    """True se c'e' la tabella tipo_incerto (articoli in giallo / messi ANCHE in un altro tipo, la scrive unisci_famiglie.py).
+    Un database di prima (VPS non aggiornata) non ce l'ha: la pagina funziona lo stesso, senza giallo e senza doppi."""
+    if not _TIPO_INCERTO[0]:
+        _TIPO_INCERTO[0] = bool(con_cursore(lambda cur: cur.execute("SELECT to_regclass('tipo_incerto') IS NOT NULL") or cur.fetchone()[0]))
+    return _TIPO_INCERTO[0]
 
 
 def condizioni(q, attr, origine, catalogo="", famiglia=0, filtri=(), escludi="", foto=None):
@@ -282,16 +293,48 @@ def condizioni(q, attr, origine, catalogo="", famiglia=0, filtri=(), escludi="",
             where.append("(lower(m.cod_fornitore) = ANY(%s) OR m.codice = ANY(%s))")
             elenco = ins["con" if filtro_foto == "con" else filtro_foto]
         params += [list(elenco), list(elenco)]
+    v2 = getattr(_RICHIESTA, "v2", "")                    # una variante (nomeV2 esatto) dentro la famiglia
+    if v2:
+        where.append("m.nomev2 = %s")
+        params.append(v2)
     if famiglia == -1:
         where.append("m.famiglia_id IS NULL")
     elif famiglia:
-        where.append("m.famiglia_id = %s")
-        params.append(famiglia)
-    for parola in q.split()[:8]:
-        like = "%" + re.sub(r"([\\%_])", r"\\\1", parola) + "%"      # % e _ scritti dall'utente valgono come lettere
-        where.append("(m.cod_fornitore ILIKE %s OR m.nomev1 ILIKE %s OR m.nomev2 ILIKE %s OR m.descrizione ILIKE %s OR EXISTS "
-                     "(SELECT 1 FROM materiale_attributo x WHERE x.codice = m.codice AND x.valore ILIKE %s))")
-        params += [like] * 5
+        if ha_tipo_incerto():                            # anche gli articoli che stanno ANCHE in questo tipo (indecisi)
+            where.append("(m.famiglia_id = %s OR EXISTS (SELECT 1 FROM tipo_incerto t WHERE t.codice = m.codice "
+                         "AND t.famiglia_id = %s AND NOT t.principale))")
+            params += [famiglia, famiglia]
+        else:
+            where.append("m.famiglia_id = %s")
+            params.append(famiglia)
+
+    def nel_testo(operatore):
+        return ("(m.cod_fornitore {o} %s OR m.nomev1 {o} %s OR m.nomev2 {o} %s OR m.descrizione {o} %s OR EXISTS "
+                "(SELECT 1 FROM materiale_attributo x WHERE x.codice = m.codice AND x.valore {o} %s))").format(o=operatore)
+
+    def pezzo(parola):                                   # % e _ scritti dall'utente valgono come lettere
+        return re.sub(r"([\\%_])", r"\\\1", parola)
+
+    if ricerca.ATTIVA:
+        parole, gruppi = ricerca.espandi(q)              # misure («mezzo pollice»), plurali, nomi alternativi delle famiglie
+        for parola in parole:
+            if re.fullmatch(r"\d+(?:\.\d+)?/\d+", parola):   # misura in pollici (1/2): 1/2 non e' dentro 1.1/2 ne' 1/20
+                where.append(nel_testo("~*"))
+                params += [r"(^|[^0-9.])" + re.escape(parola) + r"([^0-9]|$)"] * 5
+            else:
+                where.append(nel_testo("ILIKE"))
+                params += ["%" + pezzo(ricerca.radice(parola)) + "%"] * 5
+        for gruppo, nomi in gruppi:                      # nome alternativo: la famiglia indicata OPPURE il testo scritto
+            if len("".join(gruppo)) < 4:                 # sigle corte (vic): parola intera, non dentro «avvicinatore»
+                operatore, modello = "~*", r"\y" + re.escape("".join(gruppo)) + r"\y"
+            else:
+                operatore, modello = "ILIKE", "%" + "%".join(pezzo(ricerca.radice(p)) for p in gruppo) + "%"
+            where.append("(m.famiglia_id IN (SELECT id FROM famiglia WHERE nome = ANY(%s)) OR " + nel_testo(operatore) + ")")
+            params += [list(nomi)] + [modello] * 5
+    else:                                                # ricerca semplice (RICERCA_SEMPLICE=1): sottostringa, come prima
+        for parola in q.split()[:8]:
+            where.append(nel_testo("ILIKE"))
+            params += ["%" + pezzo(parola) + "%"] * 5
     if attr == NESSUNO:
         where.append("NOT EXISTS (SELECT 1 FROM materiale_attributo x WHERE x.codice = m.codice)")
     elif attr or origine:
@@ -368,6 +411,74 @@ def cerca(q, pagina, attr, origine, ordine, catalogo="", famiglia=0, filtri=(), 
                            "foto": foto_di(cat, forn, codice), "foto_stato": stato_foto(cat, forn, codice)}
                           for codice, forn, nome, descr, nome2, cat, fam in righe]}
 
+    return con_cursore(esegui)
+
+
+def varianti(famiglia, catalogo=""):
+    """Cosa e' stato raggruppato in un tipo: le FAMIGLIE di partenza (dalla nota «Nata dall'unione di: ...» che scrive
+    unisci_famiglie.py) con quanti articoli e in quali cataloghi. Le famiglie di partenza avevano come nome il nomeV2 dei loro
+    articoli, quindi il conto si fa sul nomeV2 uguale; quello che resta sono articoli che prima non avevano famiglia.
+    Per ogni voce: `incerti` = articoli messi qui come tipo piu' vicino senza esserne sicuri, `anche` = gli altri tipi in cui
+    stanno anche (indecisi), `extra` = articoli che stanno in un altro tipo e ANCHE qui (tabella tipo_incerto). In giallo."""
+    def esegui(cur):
+        cur.execute("SELECT nome, note FROM famiglia WHERE id = %s", (famiglia,))
+        riga = cur.fetchone() or ("", "")
+        nome_tipo, note = riga[0], riga[1] or ""
+        m = re.search(r"Nata dall'unione di: (.*)\.$", note)
+        assorbite = [x for x in (m.group(1).split("; ") if m else []) if x]
+        filtro = " AND m.catalogo = %s" if catalogo else ""
+        pc = [catalogo] if catalogo else []
+        incerto = ha_tipo_incerto()
+        if incerto:
+            cur.execute("SELECT m.nomev2, m.catalogo, count(*), count(t.codice) FROM materiale m LEFT JOIN tipo_incerto t "
+                        "ON t.codice = m.codice AND t.famiglia_id = m.famiglia_id AND t.principale "
+                        "WHERE m.famiglia_id = %s" + filtro + " GROUP BY 1, 2", [famiglia] + pc)
+        else:
+            cur.execute("SELECT m.nomev2, m.catalogo, count(*), 0 FROM materiale m WHERE m.famiglia_id = %s" + filtro
+                        + " GROUP BY 1, 2", [famiglia] + pc)
+        v = {}
+        for nome2, cat, n, n_inc in cur.fetchall():
+            e = v.setdefault(nome2 or "", {"v2": nome2 or "", "n": 0, "cataloghi": {}, "incerti": 0, "anche": [], "extra": False})
+            e["n"] += n
+            e["incerti"] += n_inc
+            e["cataloghi"][cat] = n
+        extra = []
+        if incerto:
+            # gli articoli di questo tipo che stanno ANCHE in altri tipi
+            cur.execute("SELECT m.nomev2, string_agg(DISTINCT f.nome, '; ') FROM materiale m JOIN tipo_incerto t ON t.codice = m.codice "
+                        "AND NOT t.principale JOIN famiglia f ON f.id = t.famiglia_id WHERE m.famiglia_id = %s" + filtro
+                        + " GROUP BY 1", [famiglia] + pc)
+            for nome2, altri in cur.fetchall():
+                if (nome2 or "") in v:
+                    v[nome2 or ""]["anche"] = altri.split("; ")
+            # gli articoli di altri tipi che stanno ANCHE qui
+            cur.execute("SELECT m.nomev2, m.catalogo, count(*), string_agg(DISTINCT f.nome, '; ') FROM tipo_incerto t "
+                        "JOIN materiale m ON m.codice = t.codice JOIN famiglia f ON f.id = m.famiglia_id "
+                        "WHERE t.famiglia_id = %s AND NOT t.principale" + filtro + " GROUP BY 1, 2", [famiglia] + pc)
+            per_v2 = {}
+            for nome2, cat, n, principale in cur.fetchall():
+                e = per_v2.setdefault(nome2 or "", {"nome": nome2 or "", "v2": nome2 or "", "n": 0, "cataloghi": {}, "incerti": 0,
+                                                    "anche": [], "extra": True, "base": False})
+                e["n"] += n
+                e["incerti"] += n
+                e["cataloghi"][cat] = n
+                e["anche"] = sorted(set(e["anche"]) | set(principale.split("; ")))
+            extra = list(per_v2.values())
+        elenco, usate = [], set()
+        for nome in ([nome_tipo] if nome_tipo in v else []) + assorbite:       # la famiglia che si chiamava gia' come il tipo + quelle assorbite
+            if nome in usate:
+                continue
+            usate.add(nome)
+            e = v.get(nome)
+            if e:
+                elenco.append(dict(e, nome=nome, base=nome == nome_tipo))
+        elenco += extra
+        elenco.sort(key=lambda e: (-e["n"], e["nome"].lower()))
+        altre = sorted((e for k, e in v.items() if k not in usate), key=lambda e: (-e["n"], e["v2"].lower()))
+        tutte = elenco + altre
+        return {"famiglia": famiglia, "nome": nome_tipo, "famiglie": elenco, "n_famiglie": len(elenco),
+                "altre": altre[:200], "n_altre": sum(e["n"] for e in altre),
+                "n_gialli": sum(e["incerti"] for e in tutte), "n_extra": sum(e["n"] for e in extra)}
     return con_cursore(esegui)
 
 
@@ -461,6 +572,58 @@ def faccette_tutte(q, attr, origine, catalogo="", famiglia=0, filtri=()):
     return con_cursore(esegui)
 
 
+FILE_LAVORI = os.path.join(os.path.dirname(BASE), "lavori_raggruppamento.json")
+_LAVORI = {"mt": None, "per_famiglia": {}}
+
+
+def lavori_per_famiglia():
+    """{nome famiglia: [lavoro, ...]} da lavori_raggruppamento.json (si rilegge quando il file cambia). Un lavoro e' una barretta
+    sulla scheda: tipo "nuovo" (verde) o "migliorato" (azzurra)."""
+    try:
+        mt = os.path.getmtime(FILE_LAVORI)
+    except OSError:
+        return {}
+    if _LAVORI["mt"] != mt:
+        try:
+            with open(FILE_LAVORI, encoding="utf-8") as f:
+                lavori = json.load(f).get("lavori", [])
+        except (OSError, ValueError):
+            lavori = []
+        per = {}
+        for l in sorted(lavori, key=lambda l: (l.get("data", ""), l.get("id", ""))):
+            for nome in l.get("famiglie", []):
+                per.setdefault(nome, []).append({"id": l.get("id"), "data": l.get("data"),
+                                                 "tipo": "migliorato" if l.get("tipo") == "migliorato" else "nuovo", "nota": l.get("nota", "")})
+        _LAVORI.update(mt=mt, per_famiglia=per)
+    return _LAVORI["per_famiglia"]
+
+
+FILE_NUOVE = os.path.join(os.path.dirname(BASE), "famiglie_nuove.json")
+_NUOVE = {"mt": None, "per_famiglia": {}}
+
+
+def nuove_per_famiglia():
+    """{nome famiglia: {"catalogo", "data", "tipo"}} da famiglie_nuove.json (segna_nuove.py): famiglie e tipi nati lavorando un
+    catalogo e non ancora approvati. Nella pagina: barretta ROSSA. Si rilegge quando il file cambia; senza file: niente."""
+    try:
+        mt = os.path.getmtime(FILE_NUOVE)
+    except OSError:
+        return {}
+    if _NUOVE["mt"] != mt:
+        per = {}
+        try:
+            with open(FILE_NUOVE, encoding="utf-8") as f:
+                cataloghi = json.load(f).get("cataloghi", {})
+        except (OSError, ValueError):
+            cataloghi = {}
+        for cat, voce in cataloghi.items():
+            for nome, info in (voce.get("nuove") or {}).items():
+                per.setdefault(nome, {"catalogo": cat, "data": info.get("data", voce.get("data", "")),
+                                      "tipo": "tipo" if info.get("tipo") == "tipo" else "famiglia"})
+        _NUOVE.update(mt=mt, per_famiglia=per)
+    return _NUOVE["per_famiglia"]
+
+
 def elenco_famiglie(catalogo=""):
     """Le famiglie per le schede della pagina: articoli (nel catalogo scelto o in tutti), cataloghi in cui c'e', e gli
     attributi che distinguono i suoi articoli (piu' di un valore), dal piu' diffuso."""
@@ -473,6 +636,16 @@ def elenco_famiglie(catalogo=""):
         fam = {}
         for i, nome, cat, n in cur.fetchall():
             fam.setdefault(i, {"id": i, "nome": nome, "cataloghi": {}})["cataloghi"][cat] = n
+        gialli = {}
+        if ha_tipo_incerto():                   # articoli che stanno ANCHE in un tipo (indecisi) e quanti sono in giallo
+            cur.execute("SELECT f.id, f.nome, m.catalogo, count(*) FROM tipo_incerto t JOIN materiale m ON m.codice = t.codice "
+                        "JOIN famiglia f ON f.id = t.famiglia_id WHERE NOT t.principale GROUP BY 1, 2, 3")
+            for i, nome, cat, n in cur.fetchall():
+                c = fam.setdefault(i, {"id": i, "nome": nome, "cataloghi": {}})["cataloghi"]
+                c[cat] = c.get(cat, 0) + n
+            cur.execute("SELECT t.famiglia_id, count(*) FROM tipo_incerto t JOIN materiale m ON m.codice = t.codice WHERE TRUE"
+                        + filtro + " GROUP BY 1", p)
+            gialli = dict(cur.fetchall())
         cur.execute("SELECT m.famiglia_id, x.chiave, count(DISTINCT x.valore), count(*) FROM materiale m "
                     "JOIN materiale_attributo x ON x.codice = m.codice JOIN attributo a ON a.chiave = x.chiave "
                     "WHERE m.famiglia_id IS NOT NULL" + filtro + " GROUP BY 1, 2 HAVING count(DISTINCT x.valore) > 1 "
@@ -481,10 +654,15 @@ def elenco_famiglie(catalogo=""):
         for i, chiave, nv, n in cur.fetchall():
             chiavi.setdefault(i, []).append({"chiave": chiave, "valori": nv, "articoli": n})
         famiglie = []
+        lavori = lavori_per_famiglia()
+        nuove = nuove_per_famiglia()
+        alias = ricerca.alias_per_famiglia() if ricerca.ATTIVA else {}
         for f in fam.values():
             n = f["cataloghi"].get(catalogo, 0) if catalogo else sum(f["cataloghi"].values())
             if n:
-                famiglie.append(dict(f, n=n, comune=len(f["cataloghi"]) > 1, attributi=chiavi.get(f["id"], [])))
+                famiglie.append(dict(f, n=n, comune=len(f["cataloghi"]) > 1, attributi=chiavi.get(f["id"], []),
+                                     lavori=lavori.get(f["nome"], []), alias=alias.get(f["nome"], []),
+                                     gialli=gialli.get(f["id"], 0), nuova=nuove.get(f["nome"])))
         famiglie.sort(key=lambda f: (-f["n"], f["nome"].lower()))
         cur.execute("SELECT count(*) FROM materiale m WHERE m.famiglia_id IS NULL" + filtro, p)
         senza = cur.fetchone()[0]
@@ -683,9 +861,10 @@ class Handler(BaseHTTPRequestHandler):
                 w = 0
             self.invia_foto(unquote(url.path[len("/foto/"):]), w if 100 <= w <= 1200 else 0)
         elif url.path in ("/api/articoli", "/api/attributi", "/api/cataloghi", "/api/info", "/api/faccette",
-                          "/api/famiglie", "/api/candidati", "/api/foto"):
+                          "/api/famiglie", "/api/candidati", "/api/foto", "/api/varianti"):
             args = parse_qs(url.query)
             _RICHIESTA.foto = (args.get("foto") or [""])[0]
+            _RICHIESTA.v2 = (args.get("v2") or [""])[0][:300]
 
             def arg(nome, default=""):
                 return (args.get(nome) or [default])[0]
@@ -695,6 +874,12 @@ class Handler(BaseHTTPRequestHandler):
             try:
                 if url.path == "/api/attributi":
                     self.json(elenco_attributi(arg("catalogo")[:120]))
+                elif url.path == "/api/varianti":
+                    try:
+                        fam_id = int(arg("famiglia", "0"))
+                    except ValueError:
+                        fam_id = 0
+                    self.json(varianti(fam_id, arg("catalogo")[:120]))
                 elif url.path == "/api/foto":
                     self.json(riepilogo_foto())
                 elif url.path == "/api/cataloghi":

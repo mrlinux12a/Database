@@ -1,0 +1,73 @@
+{
+  "nota": "Nomi alternativi con cui un idraulico cerca una famiglia (prova su valvole e raccordi, 2026-11-19). Servono SOLO a trovare la famiglia nella ricerca: non sono attributi, non entrano nel nomeV1 e non si mostrano come dati del prodotto. «alias» = usati dalla ricerca; «da_confermare» = dubbi, NON usati finche' una persona non li sposta in «alias». Le parole che sono gia' scritte nel testo del catalogo (farfalla, taratura, miscelatore, detentore...) non servono qui. La chiave e' il nome ESATTO della famiglia. Regole di lettura della frase (mezzo pollice, due vie, dritto = diritto, plurali) stanno in web/ricerca.py.",
+  "famiglie": {
+    "Valvola a sfera": {
+      "alias": ["rubinetto a sfera", "rubinetto"],
+      "da_confermare": []
+    },
+    "Valvola di sicurezza": {
+      "alias": ["valvola di sovrapressione", "sovrapressione"],
+      "da_confermare": ["valvola di scarico"]
+    },
+    "Valvola di zona": {
+      "alias": ["valvola a zone"],
+      "da_confermare": ["elettrovalvola di zona"]
+    },
+    "Valvola deviatrice": {
+      "alias": ["deviatore"],
+      "da_confermare": []
+    },
+    "Valvola miscelatrice": {
+      "alias": ["miscelatore"],
+      "da_confermare": []
+    },
+    "Valvola termostatica / termostatizzabile": {
+      "alias": ["valvola radiatore", "valvola termosifone"],
+      "da_confermare": []
+    },
+    "Valvola manuale": {
+      "alias": ["valvola radiatore", "valvola termosifone", "rubinetto radiatore", "rubinetto termosifone"],
+      "da_confermare": []
+    },
+    "Valvola monotubo / bitubo": {
+      "alias": ["valvola radiatore", "valvola termosifone"],
+      "da_confermare": []
+    },
+    "Valvola di bilanciamento": {
+      "alias": ["valvola di taratura", "valvola di equilibratura", "equilibratura idraulica"],
+      "da_confermare": []
+    },
+    "Valvola di intercettazione combustibile": {
+      "alias": ["vic"],
+      "da_confermare": []
+    },
+    "Valvola di sfogo aria": {
+      "alias": ["sfiato"],
+      "da_confermare": ["valvolina", "scarico aria"]
+    },
+    "Valvola di ritegno": {
+      "alias": ["clapet", "non ritorno", "unidirezionale", "antiritorno"],
+      "da_confermare": []
+    },
+    "Valvola di regolazione": {
+      "alias": ["valvola regolatrice"],
+      "da_confermare": []
+    },
+    "Valvola anticondensa / antigelo / antitermosifone": {
+      "alias": ["anti condensa", "anti gelo", "anti termosifone"],
+      "da_confermare": []
+    },
+    "Valvola motorizzata": {
+      "alias": [],
+      "da_confermare": ["valvola elettrica"]
+    },
+    "Raccordo a pressare": {
+      "alias": ["pressfitting", "press fitting", "pressatura"],
+      "da_confermare": []
+    },
+    "Raccordo bicono": {
+      "alias": ["doppio cono"],
+      "da_confermare": ["raccordo a compressione"]
+    }
+  }
+}
