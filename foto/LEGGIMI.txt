@@ -1,0 +1,24 @@
+FOTO DEGLI ARTICOLI
+===================
+Metti qui le foto: la pagina web le collega agli articoli dal NOME DEL FILE.
+
+  nome del file = codice fornitore (oppure codice interno) + estensione
+      652514.jpg
+  piu' foto dello stesso articolo: aggiungi "_" e quello che vuoi
+      652514_2.jpg   652514_retro.png
+
+Puoi fare una sottocartella per catalogo (es. foto\Aquatechnik\652514.jpg): vale solo per
+quel catalogo e serve se due cataloghi hanno lo stesso codice.
+Formati: jpg, jpeg, png, webp, gif, avif. Le foto nuove compaiono ricaricando la pagina
+(entro 15 secondi). Per usare un'altra cartella: CARTELLA_FOTO=... nel file .env
+
+
+FOTO SCARICATE DAL PRODUTTORE (scarica_foto.py, foto_aquatechnik.py)
+--------------------------------------------------------------------
+foto/<Catalogo>/_file/<nome>.jpg  = le foto (una sola copia, anche se vale per molti codici)
+foto/<Catalogo>/mappa.json        = {codice fornitore: {file, url, pagina, affidabilita}}
+Le foto messe a mano (foto/<Catalogo>/<codice>.jpg) vincono sulla mappa.
+  py -3.15 scarica_foto.py "C:\...\foto_articoli_<catalogo>.csv" "Nome catalogo"
+affidabilita: alta = foto della pagina del codice; media / solo serie = abbinamento per somiglianza o per serie
+(la pagina web li mostra come "Da verificare"). "Qualita' bassa" = lato corto < 600 px o file < 25 KB
+(SOGLIA_LATO / SOGLIA_BYTE in web/server.py). Nella pagina: menu «Foto» (con / senza / qualita' bassa / da verificare).

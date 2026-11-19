@@ -6,6 +6,12 @@
       "runtimeExecutable": "py",
       "runtimeArgs": ["-3.15", "web/server.py"],
       "port": 8001
+    },
+    {
+      "name": "db-serio-web-prova",
+      "runtimeExecutable": "py",
+      "runtimeArgs": ["-3.15", "web/server.py", "--porta", "8011"],
+      "port": 8011
     }
   ]
 }

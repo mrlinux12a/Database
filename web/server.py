@@ -24,6 +24,7 @@ Indirizzi
   /api/info         ?catalogo=Nome   informazioni utili: famiglie, attributi candidati, fonti consultate, articoli senza attributi
   /api/famiglie     ?catalogo=Nome   le famiglie (per le schede della pagina): articoli, cataloghi, attributi che servono a filtrare
   /api/candidati    ?catalogo=Nome   tutti gli attributi candidati, con il nome dell'articolo di esempio
+  /foto/<file>      le foto degli articoli (cartella `foto` del progetto o CARTELLA_FOTO; vedi indice_foto)
 
 Filtri comuni: famiglia=-1 = articoli senza famiglia; f=chiave::valore ripetuto con la STESSA chiave = uno qualsiasi di quei valori
 (con chiavi diverse: tutti). /api/faccette con &tutte=1 restituisce i valori di tutti gli attributi in una volta.
@@ -36,9 +37,11 @@ import json
 import os
 import re
 import sys
+import threading
+import time
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, quote, unquote, urlparse
 
 import psycopg2
 from psycopg2.pool import ThreadedConnectionPool
@@ -47,6 +50,200 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(BASE))
 import arricchimento  # noqa: E402,F401  (legge il file .env)
 INDEX = os.path.join(BASE, "index.html")
+
+# ---- foto degli articoli ---------------------------------------------------------------------------------------------
+# Cartella delle foto: CARTELLA_FOTO nel .env, altrimenti la cartella `foto` del progetto. Una foto si collega a un
+# articolo dal NOME DEL FILE = codice fornitore (o codice interno), con eventuale suffisso dopo "_" per averne piu' di una:
+#   foto/652514.jpg   foto/652514_2.jpg   foto/652514_retro.png
+# Si puo' usare una sottocartella per catalogo (foto/Aquatechnik/652514.jpg): vale solo per quel catalogo, e vince sulla
+# cartella principale se lo stesso codice c'e' in tutte e due. Le foto si vedono da /foto/<percorso>.
+CARTELLA_FOTO = os.path.abspath(os.environ.get("CARTELLA_FOTO") or os.path.join(os.path.dirname(BASE), "foto"))
+TIPI_FOTO = {".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp", ".gif": "image/gif",
+             ".avif": "image/avif"}
+_FOTO = {"quando": 0.0, "indice": {}, "dubbie": set(), "insiemi": {}, "qual": {}}
+
+
+# Foto scaricate dal sito del produttore (scarica_foto.py): foto/<Catalogo>/_file/<nome>.jpg + foto/<Catalogo>/mappa.json
+# {codice fornitore: {"file": "_file/<nome>.jpg", "affidabilita": "alta|media|solo serie", ...}}. La cartella _file non
+# si indicizza per nome: le foto si collegano ai codici solo tramite la mappa (una foto per molti codici, senza copie).
+SOGLIA_LATO = 600          # foto con il lato corto sotto questi pixel = qualita' bassa
+SOGLIA_BYTE = 25_000       # o file piu' piccolo di cosi'
+_DIM = {}                  # {percorso: (mtime, larghezza, altezza)}
+
+
+def dimensioni(percorso):
+    """(larghezza, altezza) di un jpg/png/webp/gif leggendo solo l'intestazione; None se non riconosciuta."""
+    try:
+        mt = os.path.getmtime(percorso)
+        if percorso in _DIM and _DIM[percorso][0] == mt:
+            return _DIM[percorso][1:]
+        with open(percorso, "rb") as f:
+            testa = f.read(32)
+            dim = None
+            if testa[:8] == b"\x89PNG\r\n\x1a\n":
+                dim = (int.from_bytes(testa[16:20], "big"), int.from_bytes(testa[20:24], "big"))
+            elif testa[:3] == b"GIF":
+                dim = (int.from_bytes(testa[6:8], "little"), int.from_bytes(testa[8:10], "little"))
+            elif testa[:4] == b"RIFF" and testa[8:12] == b"WEBP":
+                if testa[12:16] == b"VP8X":
+                    dim = (1 + int.from_bytes(testa[24:27], "little"), 1 + int.from_bytes(testa[27:30], "little"))
+                elif testa[12:16] == b"VP8 ":
+                    dim = (int.from_bytes(testa[26:28], "little") & 0x3FFF, int.from_bytes(testa[28:30], "little") & 0x3FFF)
+            elif testa[:2] == b"\xff\xd8":
+                f.seek(2)
+                while True:
+                    b = f.read(1)
+                    while b and b != b"\xff":
+                        b = f.read(1)
+                    while b == b"\xff":
+                        b = f.read(1)
+                    if not b:
+                        break
+                    lung = int.from_bytes(f.read(2), "big")
+                    if b[0] in (0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7, 0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF):
+                        s = f.read(5)
+                        dim = (int.from_bytes(s[3:5], "big"), int.from_bytes(s[1:3], "big"))
+                        break
+                    f.seek(lung - 2, 1)
+        _DIM[percorso] = (mt,) + (dim or (0, 0))
+        return dim
+    except OSError:
+        return None
+
+
+def qualita_file(rel):
+    """'bassa' se la foto e' piccola (lato corto < SOGLIA_LATO px o file < SOGLIA_BYTE), altrimenti 'ok'."""
+    q = _FOTO["qual"].get(rel)
+    if q is None:                                         # una volta per file e per ogni rilettura dell'indice
+        p = os.path.join(CARTELLA_FOTO, rel)
+        dim = dimensioni(p)
+        try:
+            piccolo = os.path.getsize(p) < SOGLIA_BYTE
+        except OSError:
+            piccolo = False
+        q = _FOTO["qual"][rel] = "bassa" if (dim and min(dim) < SOGLIA_LATO) or piccolo else "ok"
+    return q
+
+
+def indice_foto():
+    """{(sottocartella in minuscolo o "", nome base in minuscolo): [percorsi relativi]}, riletto al massimo ogni 15 s.
+    In _FOTO["dubbie"] i (catalogo, codice) la cui foto viene da un abbinamento non sicuro (mappa.json: media / solo serie)."""
+    adesso = time.time()
+    if adesso - _FOTO["quando"] < 15:
+        return _FOTO["indice"]
+    indice, dubbie = {}, set()
+    if os.path.isdir(CARTELLA_FOTO):
+        for radice, cartelle, file in os.walk(CARTELLA_FOTO):
+            cartelle[:] = sorted(c for c in cartelle if not c.startswith((".", "_")))
+            rel_dir = os.path.relpath(radice, CARTELLA_FOTO)
+            prima = "" if rel_dir == "." else rel_dir.replace("\\", "/").split("/")[0].lower()
+            for nome in sorted(file):
+                base, est = os.path.splitext(nome)
+                if est.lower() not in TIPI_FOTO or nome.startswith("."):
+                    continue
+                rel = nome if rel_dir == "." else rel_dir.replace("\\", "/") + "/" + nome
+                base = base.lower()
+                indice.setdefault((prima, base), []).append(rel)
+                if "_" in base:                                  # 652514_2 -> anche sotto 652514
+                    indice.setdefault((prima, base.split("_", 1)[0]), []).append(rel)
+            if "mappa.json" in file and rel_dir != "." and "/" not in rel_dir.replace("\\", "/"):
+                try:                                             # foto scaricate dal produttore: dopo quelle messe a mano
+                    with open(os.path.join(radice, "mappa.json"), encoding="utf-8") as f:
+                        mappa = json.load(f)
+                except (OSError, ValueError):
+                    mappa = {}
+                for cod, v in mappa.items():
+                    chiave = (prima, cod.strip().lower())
+                    rel = rel_dir.replace("\\", "/") + "/" + v["file"]
+                    if chiave in indice or not os.path.exists(os.path.join(CARTELLA_FOTO, rel)):
+                        continue                                 # c'e' gia' una foto messa a mano per questo codice
+                    indice[chiave] = [rel]
+                    if v.get("affidabilita", "alta") != "alta":
+                        dubbie.add(chiave)
+    _FOTO.update(quando=adesso, indice=indice, dubbie=dubbie, insiemi={})
+    return indice
+
+
+def stato_foto(catalogo, *codici):
+    """'senza' | 'bassa' (tutte le foto sono piccole) | 'dubbia' (abbinamento non sicuro) | 'ok' per un articolo."""
+    foto = foto_di(catalogo, *codici)
+    if not foto:
+        return "senza"
+    if all(qualita_file(unquote(f[len("/foto/"):])) == "bassa" for f in foto):
+        return "bassa"
+    cat = (catalogo or "").lower()
+    if any((cat, str(c).strip().lower()) in _FOTO["dubbie"] for c in codici if c):
+        return "dubbia"
+    return "ok"
+
+
+def insiemi_foto(catalogo):
+    """{'con': codici (minuscoli) che hanno foto, 'bassa': ..., 'dubbia': ...} per un catalogo (o tutti se vuoto)."""
+    indice = indice_foto()
+    if catalogo in _FOTO["insiemi"]:
+        return _FOTO["insiemi"][catalogo]
+    cat = (catalogo or "").lower()
+    ins = {"con": set(), "bassa": set(), "dubbia": set()}
+    for (cartella, cod), rels in indice.items():
+        if catalogo and cartella not in (cat, ""):
+            continue
+        ins["con"].add(cod)
+        if all(qualita_file(r) == "bassa" for r in rels):
+            ins["bassa"].add(cod)
+        elif (cartella, cod) in _FOTO["dubbie"]:
+            ins["dubbia"].add(cod)
+    _FOTO["insiemi"][catalogo] = ins
+    return ins
+
+
+def miniatura(percorso, rel, larghezza):
+    """Percorso della miniatura (JPEG, lato lungo = larghezza) o None se Pillow non c'e' o l'immagine non si legge."""
+    try:
+        from PIL import Image
+    except ImportError:
+        return None
+    nome = re.sub(r"[^A-Za-z0-9._-]+", "_", rel) + ".jpg"
+    dest = os.path.join(CARTELLA_FOTO, "_miniature", str(larghezza), nome)
+    try:
+        if os.path.exists(dest) and os.path.getmtime(dest) >= os.path.getmtime(percorso):
+            return dest
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+        with Image.open(percorso) as im:
+            im = im.convert("RGB")
+            im.thumbnail((larghezza, larghezza))
+            tmp = dest + ".%d.tmp" % threading.get_ident()
+            im.save(tmp, "JPEG", quality=82, optimize=True)
+            os.replace(tmp, dest)
+        return dest
+    except Exception:
+        return None
+
+
+def nome_cartella_foto():
+    """Come chiamare la cartella delle foto nella pagina: relativa al progetto se e' dentro, altrimenti il percorso."""
+    progetto = os.path.dirname(BASE)
+    if os.path.dirname(CARTELLA_FOTO) == progetto:
+        return os.path.basename(CARTELLA_FOTO)
+    return CARTELLA_FOTO
+
+
+def foto_di(catalogo, *codici):
+    """Indirizzi delle foto di un articolo: prima quelle della sottocartella del catalogo, altrimenti quelle della cartella
+    principale. Il file col nome esatto viene prima delle varianti (_2, _retro...)."""
+    indice = indice_foto()
+    if not indice:
+        return []
+    for cartella in ((catalogo or "").lower(), ""):
+        trovate = []
+        for cod in codici:
+            if cod:
+                for rel in indice.get((cartella, str(cod).strip().lower()), []):
+                    if rel not in trovate:
+                        trovate.append(rel)
+        if trovate:
+            esatte = [r for r in trovate if "_" not in os.path.splitext(os.path.basename(r))[0]]
+            return ["/foto/" + quote(r) for r in esatte + [r for r in trovate if r not in esatte]][:12]
+    return []
 PER_PAGINA = 50
 ORIGINI = ("descrizione", "codice", "sito", "web")
 NESSUNO = "__nessuno"              # filtro speciale: articoli senza nessun attributo
@@ -64,7 +261,10 @@ def con_cursore(funzione):
         POOL.putconn(conn)
 
 
-def condizioni(q, attr, origine, catalogo="", famiglia=0, filtri=(), escludi=""):
+_RICHIESTA = threading.local()     # parametri della richiesta in corso che non passano da tutte le funzioni (filtro foto)
+
+
+def condizioni(q, attr, origine, catalogo="", famiglia=0, filtri=(), escludi="", foto=None):
     """Condizione SQL (su `materiale m`) e parametri per i filtri della pagina. `filtri` = [(chiave, valore), ...]: per ogni
     chiave l'articolo deve avere UNO dei valori scelti, e deve soddisfare TUTTE le chiavi (le faccette). `escludi` = chiave
     di cui non applicare il filtro (serve a contare le alternative di un attributo gia' filtrato). famiglia=-1 = senza famiglia."""
@@ -72,6 +272,16 @@ def condizioni(q, attr, origine, catalogo="", famiglia=0, filtri=(), escludi="")
     if catalogo:
         where.append("m.catalogo = %s")
         params.append(catalogo)
+    filtro_foto = getattr(_RICHIESTA, "foto", "") if foto is None else foto        # senza | bassa | dubbia | con (vedi do_GET)
+    if filtro_foto in ("senza", "bassa", "dubbia", "con"):
+        ins = insiemi_foto(catalogo)
+        if filtro_foto == "senza":
+            where.append("NOT (lower(m.cod_fornitore) = ANY(%s) OR m.codice = ANY(%s))")
+            elenco = ins["con"]
+        else:
+            where.append("(lower(m.cod_fornitore) = ANY(%s) OR m.codice = ANY(%s))")
+            elenco = ins["con" if filtro_foto == "con" else filtro_foto]
+        params += [list(elenco), list(elenco)]
     if famiglia == -1:
         where.append("m.famiglia_id IS NULL")
     elif famiglia:
@@ -137,15 +347,53 @@ def cerca(q, pagina, attr, origine, ordine, catalogo="", famiglia=0, filtri=(), 
                         "WHERE x.codice = ANY(%s) ORDER BY a.ordine", (list(attributi),))
             for codice, chiave, valore, orig, fonte in cur.fetchall():
                 attributi[codice].append([chiave, valore, orig, fonte])
-        return {"totale": totale, "pagina": pag, "pagine": pagine, "per_pagina": PER_PAGINA,
+        # quanti articoli dello stesso insieme (famiglia, ricerca, filtri) hanno / non hanno foto, senza il filtro foto
+        cond_f, params_f = condizioni(q, attr, origine, catalogo, famiglia, filtri, foto="")
+        cur.execute("SELECT lower(m.cod_fornitore), m.codice FROM materiale m WHERE " + cond_f, params_f)
+        ins = insiemi_foto(catalogo)
+        n_foto = {"tutte": 0, "con": 0, "senza": 0, "bassa": 0, "dubbia": 0}
+        for forn, codice in cur.fetchall():
+            n_foto["tutte"] += 1
+            if forn in ins["con"] or codice in ins["con"]:
+                n_foto["con"] += 1
+                for k in ("bassa", "dubbia"):
+                    if forn in ins[k] or codice in ins[k]:
+                        n_foto[k] += 1
+            else:
+                n_foto["senza"] += 1
+        return {"totale": totale, "pagina": pag, "pagine": pagine, "per_pagina": PER_PAGINA, "cartella_foto": nome_cartella_foto(),
+                "n_foto": n_foto,
                 "righe": [{"codice": codice, "cod": forn, "nome": nome, "nome2": nome2, "descr": descr,
-                           "attr": attributi[codice], "catalogo": cat, "famiglia": fam}
+                           "attr": attributi[codice], "catalogo": cat, "famiglia": fam,
+                           "foto": foto_di(cat, forn, codice), "foto_stato": stato_foto(cat, forn, codice)}
                           for codice, forn, nome, descr, nome2, cat, fam in righe]}
 
     return con_cursore(esegui)
 
 
-MAX_VALORI = 60                    # valori mostrati per attributo nelle faccette
+def riepilogo_foto():
+    """Per catalogo: articoli, con foto buona, da verificare (abbinamento dubbio), qualita' bassa, senza foto."""
+    def esegui(cur):
+        cur.execute("SELECT catalogo, codice, cod_fornitore FROM materiale")
+        out = {}
+        for cat, codice, forn in cur.fetchall():
+            r = out.setdefault(cat, {"catalogo": cat, "totale": 0, "ok": 0, "dubbia": 0, "bassa": 0, "senza": 0})
+            ins = insiemi_foto(cat)
+            f = (forn or "").lower()
+            r["totale"] += 1
+            if f not in ins["con"] and codice not in ins["con"]:
+                r["senza"] += 1
+            elif f in ins["bassa"] or codice in ins["bassa"]:
+                r["bassa"] += 1
+            elif f in ins["dubbia"] or codice in ins["dubbia"]:
+                r["dubbia"] += 1
+            else:
+                r["ok"] += 1
+        return sorted(out.values(), key=lambda r: r["catalogo"])
+    return {"cataloghi": con_cursore(esegui), "soglia_lato": SOGLIA_LATO, "soglia_kb": SOGLIA_BYTE // 1000}
+
+
+MAX_VALORI = 60                  # valori mostrati per attributo nelle faccette
 
 
 def faccette(q, attr, origine, catalogo="", famiglia=0, filtri=(), chiave=""):
@@ -372,6 +620,29 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(corpo)
 
+    def invia_foto(self, rel, larghezza=0):
+        """Un file della cartella delle foto (solo immagini, solo dentro quella cartella). Con `larghezza` (?w=480) una
+        miniatura JPEG (serve Pillow; se manca si invia l'originale), salvata in foto/_miniature per le richieste dopo."""
+        percorso = os.path.realpath(os.path.join(CARTELLA_FOTO, rel))
+        tipo = TIPI_FOTO.get(os.path.splitext(percorso)[1].lower())
+        if (not tipo or "\0" in rel or not percorso.startswith(os.path.realpath(CARTELLA_FOTO) + os.sep)
+                or not os.path.isfile(percorso)):
+            self.invia(404, b"Foto non trovata", "text/plain; charset=utf-8")
+            return
+        if larghezza:
+            mini = miniatura(percorso, rel, larghezza)
+            if mini:
+                percorso, tipo = mini, "image/jpeg"
+        with open(percorso, "rb") as f:
+            corpo = f.read()
+        self.send_response(200)
+        self.send_header("Content-Type", tipo)
+        self.send_header("Content-Length", str(len(corpo)))
+        self.send_header("Cache-Control", "private, max-age=86400")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.end_headers()
+        self.wfile.write(corpo)
+
     def json(self, dati):
         self.invia(200, json.dumps(dati, ensure_ascii=False).encode("utf-8"), "application/json; charset=utf-8")
 
@@ -405,9 +676,16 @@ class Handler(BaseHTTPRequestHandler):
         if url.path in ("/", "/index.html"):
             with open(INDEX, "rb") as f:
                 self.invia(200, f.read(), "text/html; charset=utf-8")
+        elif url.path.startswith("/foto/"):
+            try:
+                w = int((parse_qs(url.query).get("w") or ["0"])[0])
+            except ValueError:
+                w = 0
+            self.invia_foto(unquote(url.path[len("/foto/"):]), w if 100 <= w <= 1200 else 0)
         elif url.path in ("/api/articoli", "/api/attributi", "/api/cataloghi", "/api/info", "/api/faccette",
-                          "/api/famiglie", "/api/candidati"):
+                          "/api/famiglie", "/api/candidati", "/api/foto"):
             args = parse_qs(url.query)
+            _RICHIESTA.foto = (args.get("foto") or [""])[0]
 
             def arg(nome, default=""):
                 return (args.get(nome) or [default])[0]
@@ -417,6 +695,8 @@ class Handler(BaseHTTPRequestHandler):
             try:
                 if url.path == "/api/attributi":
                     self.json(elenco_attributi(arg("catalogo")[:120]))
+                elif url.path == "/api/foto":
+                    self.json(riepilogo_foto())
                 elif url.path == "/api/cataloghi":
                     self.json(elenco_cataloghi())
                 elif url.path == "/api/info":

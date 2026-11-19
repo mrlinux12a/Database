@@ -227,6 +227,63 @@
   .pager { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 16px; color: var(--tenue); font-size: 14px; }
   .carico { opacity: .55; transition: opacity .15s; pointer-events: none; }
 
+
+  /* ---- foto ---- */
+  .art .foto { display: grid; place-items: center; position: relative; overflow: hidden; width: calc(100% + 36px); height: 200px;
+               margin: -16px -18px 2px; padding: 0; border: 0; border-bottom: 1px solid var(--linea); border-radius: 14px 14px 0 0;
+               background: #fff; cursor: zoom-in; }
+  .art .foto:not(.vuota) { display: block; }
+  .art .foto img { display: block; width: 100%; height: 100%; object-fit: contain; padding: 14px; transition: transform .2s; }
+  .art .foto:hover img { transform: scale(1.03); }
+  .foto.vuota, .art .foto.vuota { background: var(--riga); color: var(--tenue2); cursor: pointer; align-content: center; gap: 6px; font-size: 13px; }
+  .foto.vuota .svg { width: 30px; height: 30px; stroke-width: 1.5; }
+  .foto.vuota small { font-size: 11.5px; opacity: .85; }
+  .foto.vuota:hover { color: var(--accento); }
+  .foto .stato-foto { position: absolute; left: 10px; bottom: 10px; font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px; color: #fff; }
+  .foto .stato-foto.bassa { background: #c0392b; }
+  .foto .stato-foto.dubbia { background: #b9770e; }
+  .foto .quante { position: absolute; right: 10px; bottom: 10px; display: inline-flex; align-items: center; gap: 4px; background: rgba(15,18,24,.72);
+                  color: #fff; font-size: 12px; font-weight: 600; border-radius: 999px; padding: 2px 9px 2px 7px; }
+  .foto .quante .svg { width: 13px; height: 13px; }
+  .foto-det { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 14px 0 4px; }
+  .foto-det button { border: 1px solid var(--linea); border-radius: 10px; padding: 0; background: #fff; cursor: zoom-in; overflow: hidden;
+                     aspect-ratio: 1; display: grid; place-items: center; }
+  .foto-det button:first-child { grid-column: 1 / -1; aspect-ratio: auto; height: 240px; }
+  .foto-det button:not(.vuota) { display: block; }
+  .foto-det img { display: block; width: 100%; height: 100%; object-fit: contain; padding: 8px; }
+  .foto-det .foto.vuota { grid-column: 1 / -1; height: 150px; border: 1px dashed var(--linea2); border-radius: 10px; width: 100%; }
+  .galleria { position: fixed; inset: 0; z-index: 60; background: rgba(8,10,14,.93); color: #fff; display: flex; flex-direction: column;
+              animation: dissolvi .15s ease-out; }
+  .galleria[hidden] { display: none; }
+  .galleria:focus { outline: none; }
+  @keyframes dissolvi { from { opacity: 0; } }
+  .galleria .su { display: flex; align-items: center; gap: 12px; padding: 14px 18px; }
+  .galleria .su .cod-g { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 12.5px; background: rgba(255,255,255,.12);
+                         border-radius: 6px; padding: 1px 8px; }
+  .galleria .su .tit { font-weight: 600; margin-right: auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .galleria .su .cont { color: rgba(255,255,255,.7); font-size: 14px; font-variant-numeric: tabular-nums; }
+  .btn-g { flex: none; width: 44px; height: 44px; border-radius: 999px; border: 0; background: rgba(255,255,255,.12); color: #fff;
+           display: grid; place-items: center; cursor: pointer; }
+  .btn-g:hover { background: rgba(255,255,255,.24); }
+  .btn-g .svg { width: 20px; height: 20px; }
+  .galleria .centro { flex: 1; min-height: 0; display: flex; align-items: center; gap: 14px; padding: 0 18px; }
+  .galleria .quadro { flex: 1; min-width: 0; height: 100%; display: flex; align-items: center; justify-content: center; }
+  .galleria .quadro img { max-width: 100%; max-height: 100%; object-fit: contain; background: #fff; border-radius: 10px; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+  .galleria .miniature { display: flex; gap: 8px; justify-content: center; padding: 14px; overflow-x: auto; }
+  .galleria .miniature button { flex: none; width: 64px; height: 64px; border-radius: 9px; border: 2px solid transparent; padding: 0; background: #fff;
+                                cursor: pointer; opacity: .55; overflow: hidden; }
+  .galleria .miniature button:hover { opacity: .85; }
+  .galleria .miniature button[aria-current="true"] { border-color: #fff; opacity: 1; }
+  .galleria .miniature img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
+  .galleria .vuota-g { max-width: 560px; text-align: center; background: rgba(255,255,255,.07); border-radius: 18px; padding: 34px 32px; line-height: 1.6;
+                       color: rgba(255,255,255,.85); font-size: 14.5px; }
+  .galleria .vuota-g .svg { width: 44px; height: 44px; stroke-width: 1.4; opacity: .8; }
+  .galleria .vuota-g h2 { color: #fff; font-size: 19px; margin: 10px 0 12px; }
+  .galleria .vuota-g p { margin: 8px 0; }
+  .galleria code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; background: rgba(255,255,255,.14);
+                   padding: 1px 6px; border-radius: 5px; color: #fff; white-space: nowrap; }
+  @media (max-width: 600px) { .galleria .centro { padding: 0 6px; gap: 6px; } .btn-g { width: 38px; height: 38px; } }
+
   /* ---- dettaglio articolo ---- */
   .velo { position: fixed; inset: 0; background: rgba(10,14,20,.35); z-index: 40; }
   .velo[hidden], .cassetto[hidden] { display: none; }
@@ -295,6 +352,7 @@
 
 <div class="velo" id="velo" hidden></div>
 <aside class="cassetto" id="cassetto" role="dialog" aria-modal="true" aria-labelledby="det-titolo" hidden></aside>
+<div class="galleria" id="galleria" role="dialog" aria-modal="true" aria-label="Foto dell'articolo" tabindex="-1" hidden></div>
 
 <script>
 "use strict";
@@ -344,6 +402,7 @@ const ICONE = {
   etichetta: '<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
   codici: '<path d="M4 5v14M8 5v14M12 5v14M16 5v14M20 5v14"/>',
   punto: '<circle cx="12" cy="12" r="4"/>',
+  foto: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>',
 };
 /* ogni gruppo di attributi (colonna `gruppo` della tabella attributo) ha un colore (tinta) e un'icona */
 const GRUPPI = {
@@ -508,6 +567,15 @@ async function vistaFamiglie(p, nuova) {
     h("div", { class: "testa" }, h("div", { class: "tile", style: "--h:220" }, "?"),
       h("div", null, h("h2", null, "Senza famiglia"), h("div", { class: "n" }, h("b", null, fmt(d.senza_famiglia)), " articoli"))),
     h("div", { class: "piede" }, "Articoli a cui non è ancora stata assegnata una famiglia")));
+  if (!q && !soloComuni) {
+    await caricaFotoN();
+    if (FOTO_N) for (const [k, tinta_, nota] of [["senza", 0, "Articoli di cui non c'è ancora nessuna foto"], ["bassa", 25, "Foto troppo piccola o poco nitida: da sostituire"],
+        ["dubbia", 40, "Foto abbinata per serie o per somiglianza: da controllare"]])
+      if (FOTO_N[k]) schede.push(h("a", { class: "fam senza", href: indirizzo("cerca", "", { foto: k, modo: "schede" }) },
+        h("div", { class: "testa" }, h("div", { class: "tile", style: "--h:" + tinta_ }, icona("foto")),
+          h("div", null, h("h2", null, TITOLI_FOTO[k].replace("Articoli ", "").replace(/^./, (c) => c.toUpperCase())), h("div", { class: "n" }, h("b", null, fmt(FOTO_N[k])), " articoli"))),
+        h("div", { class: "piede" }, nota)));
+  }
   riempi($("#griglia"), ...(schede.length ? schede
     : [h("div", { class: "vuoto", style: "grid-column:1/-1" }, "Nessuna famiglia con questo nome. Premi Invio per cercare tra gli articoli.")]));
 
@@ -545,6 +613,7 @@ const A = { ctrl: null, aperti: new Set(), chiusi: new Set(), espansi: new Set()
 function statoArticoli(vista, id, p) {
   return {
     vista, id, q: p.get("q") || "", pagina: Math.max(1, parseInt(p.get("pagina") || "1", 10) || 1),
+    foto: ["senza", "bassa", "dubbia", "con"].includes(p.get("foto")) ? p.get("foto") : "",
     ordine: p.get("ordine") || "nome", verso: p.get("verso") === "desc" ? "desc" : "asc", modo: p.get("modo") === "schede" ? "schede" : "tabella",
     filtri: p.getAll("f").filter((f) => f.includes("::")).map((f) => { const i = f.indexOf("::"); return [f.slice(0, i), f.slice(i + 2)]; }),
   };
@@ -554,6 +623,7 @@ function hashArticoli(s, cambi) {
   const p = new URLSearchParams();
   if (t.q) p.set("q", t.q);
   for (const [k, v] of t.filtri) p.append("f", k + "::" + v);
+  if (t.foto) p.set("foto", t.foto);
   if (t.ordine !== "nome") p.set("ordine", t.ordine);
   if (t.verso === "desc") p.set("verso", "desc");
   if (t.modo !== "tabella") p.set("modo", t.modo);
@@ -565,6 +635,7 @@ function paramApi(s, extra) {
   if (CATALOGO) p.set("catalogo", CATALOGO);
   if (s.vista === "famiglia") p.set("famiglia", s.id === "senza" ? "-1" : s.id);
   if (s.q) p.set("q", s.q);
+  if (s.foto) p.set("foto", s.foto);
   for (const [k, v] of s.filtri) p.append("f", k + "::" + v);
   return p;
 }
@@ -578,7 +649,7 @@ async function vistaArticoli(vista, id, p, nuova) {
     titolo = f ? f.nome : "Famiglia";
     if (f && f.comune) sotto = "In " + Object.entries(f.cataloghi).map(([c, n]) => c + " (" + fmt(n) + ")").join(", ");
   } else {
-    titolo = s.q ? "Risultati per «" + s.q + "»" : "Tutti gli articoli";
+    titolo = s.q ? "Risultati per «" + s.q + "»" : s.foto ? TITOLI_FOTO[s.foto] : "Tutti gli articoli";
   }
   if (nuova || !$("#risultati")) {
     A.aperti.clear(); A.chiusi.clear(); A.espansi.clear(); A.cercaValori = {};
@@ -618,6 +689,19 @@ async function vistaArticoli(vista, id, p, nuova) {
   disegnaComuni(fac, s);
   disegnaFaccette(fac, s);
   disegnaRisultati(art, fac, s);
+}
+
+const TITOLI_FOTO = { senza: "Articoli senza foto", bassa: "Articoli con foto di qualità bassa", dubbia: "Articoli con foto da verificare", con: "Articoli con foto" };
+let FOTO_N = null, FOTO_T = 0;
+async function caricaFotoN() {          // numeri per il menu «Foto» (per il catalogo scelto o per tutti), al massimo ogni 20 s
+  if (FOTO_N && Date.now() - FOTO_T < 20000 && FOTO_N._cat === CATALOGO) return;
+  try {
+    const d = await api("/api/foto", new URLSearchParams());
+    const r = d.cataloghi.filter((c) => !CATALOGO || c.catalogo === CATALOGO);
+    const somma = (k) => r.reduce((a, c) => a + c[k], 0);
+    FOTO_N = { tutte: somma("totale"), con: somma("totale") - somma("senza"), senza: somma("senza"), bassa: somma("bassa"), dubbia: somma("dubbia"), _cat: CATALOGO };
+    FOTO_T = Date.now();
+  } catch (e) { FOTO_N = null; }
 }
 
 function disegnaComuni(fac, s) {
@@ -679,6 +763,7 @@ function disegnaFaccette(fac, s) {
 
 function disegnaRisultati(d, fac, s) {
   A.righe = d.righe;
+  A.cartellaFoto = d.cartella_foto || "foto";
   // filtri attivi
   riempi($("#attivi"), ...s.filtri.map(([k, v]) => h("button", { type: "button", class: "chip", title: "Togli questo filtro",
     onclick: () => vai(hashArticoli(s, { filtri: s.filtri.filter(([a, b]) => !(a === k && b === v)), pagina: 1 })) },
@@ -703,6 +788,10 @@ function disegnaRisultati(d, fac, s) {
         opzOrd.map(([v, t]) => h("option", { value: v, selected: v === s.ordine }, t))),
       h("button", { type: "button", class: "btn icona", title: s.verso === "desc" ? "Decrescente" : "Crescente", "aria-label": "Inverti l'ordine",
         onclick: () => vai(hashArticoli(s, { verso: s.verso === "desc" ? "asc" : "desc", pagina: 1 }), true) }, icona(s.verso === "desc" ? "freccia_giu" : "freccia_su"))),
+    h("div", { class: "ordina" }, h("label", { for: "filtro-foto" }, "Foto"),
+      h("select", { id: "filtro-foto", onchange: (e) => vai(hashArticoli(s, { foto: e.target.value, pagina: 1 }), true) },
+        [["", "Tutte"], ["con", "Con foto"], ["senza", "Senza foto"], ["bassa", "Qualità bassa"], ["dubbia", "Da verificare"]]
+          .map(([v, t]) => h("option", { value: v, selected: v === s.foto }, t + (d.n_foto ? " (" + fmt(d.n_foto[v || "tutte"]) + ")" : ""))))),
     h("div", { class: "segmenti", role: "group", "aria-label": "Visualizzazione" },
       h("button", { type: "button", "aria-pressed": String(s.modo === "tabella"), onclick: () => vai(hashArticoli(s, { modo: "tabella" }), true) }, icona("tabella"), "Tabella"),
       h("button", { type: "button", "aria-pressed": String(s.modo === "schede"), onclick: () => vai(hashArticoli(s, { modo: "schede" }), true) }, icona("schede"), "Schede")));
@@ -758,6 +847,7 @@ function tabellaArticoli(righe, colonne, s) {
 
 function schedaArticolo(r, i, s) {
   return h("article", { class: "art", onclick: () => apriDettaglio(i, s) },
+    bottoneFoto(r),
     h("div", { class: "r1" }, h("span", { class: "mono codice" }, r.cod), s.vista !== "famiglia" && r.famiglia ? h("span", { class: "famb" }, r.famiglia) : null,
       !CATALOGO ? h("span", { style: "margin-left:auto" }, r.catalogo) : null),
     h("div", { class: "nomi" },
@@ -767,6 +857,76 @@ function schedaArticolo(r, i, s) {
     r.attr.length ? h("dl", null, r.attr.map(([k, v]) => h("div", null, icAttr(k),
         h("div", { style: "min-width:0" }, h("dt", { title: (META[k] || {}).etichetta || k }, etichetta(k)), h("dd", null, bottoneValore(s, k, v))))))
       : h("p", { class: "tenue", style: "margin:0;font-size:13px" }, "Nessun attributo trovato."));
+}
+
+/* ---- foto: sezione nella scheda e nel dettaglio, galleria a tutto schermo ---- */
+const G = { r: null, i: 0, prima: null };
+function bottoneFoto(r) {
+  const n = (r.foto || []).length;
+  if (!n) return h("button", { type: "button", class: "foto vuota", "aria-label": "Nessuna foto: come aggiungerla",
+    onclick: (e) => { e.stopPropagation(); apriFoto(r, 0); } }, icona("foto"), h("span", null, "Nessuna foto"), h("small", null, "clic per sapere come aggiungerla"));
+  const b = h("button", { type: "button", class: "foto", "aria-label": "Apri le foto (" + n + ")", onclick: (e) => { e.stopPropagation(); apriFoto(r, 0); } },
+    h("img", { src: r.foto[0] + "?w=480", alt: "", loading: "lazy", decoding: "async", onerror: () => b.replaceWith(fotoRotta(r)) }),
+    n > 1 ? h("span", { class: "quante" }, icona("foto"), n) : null,
+    r.foto_stato === "bassa" || r.foto_stato === "dubbia"
+      ? h("span", { class: "stato-foto " + r.foto_stato, title: r.foto_stato === "bassa" ? "Foto di qualità bassa: da sostituire" : "Foto abbinata per serie o per somiglianza: da verificare" },
+          r.foto_stato === "bassa" ? "Qualità bassa" : "Da verificare") : null);
+  return b;
+}
+function fotoRotta(r) {
+  return h("button", { type: "button", class: "foto vuota", onclick: (e) => { e.stopPropagation(); apriFoto(r, 0); } },
+    icona("foto"), h("span", null, "Foto non leggibile"));
+}
+function fotoDettaglio(r) {
+  const f = r.foto || [];
+  if (!f.length) return h("div", { class: "foto-det" }, h("button", { type: "button", class: "foto vuota", onclick: () => apriFoto(r, 0) },
+    icona("foto"), h("span", null, "Nessuna foto"), h("small", null, "clic per sapere come aggiungerla")));
+  return h("div", { class: "foto-det" }, f.slice(0, 9).map((u, j) => h("button", { type: "button", "aria-label": "Apri la foto " + (j + 1) + " di " + f.length,
+    onclick: () => apriFoto(r, j) }, h("img", { src: u + "?w=480", alt: "", loading: "lazy" }))));
+}
+function apriFoto(r, i) {
+  G.r = r; G.i = i || 0; G.prima = document.activeElement;
+  disegnaGalleria();
+  $("#galleria").hidden = false;
+  document.documentElement.style.overflow = "hidden";
+  ($("#galleria .chiudi") || $("#galleria")).focus();
+}
+function chiudiFoto() {
+  if ($("#galleria").hidden) return;
+  $("#galleria").hidden = true;
+  document.documentElement.style.overflow = "";
+  if (G.prima && document.contains(G.prima)) G.prima.focus();
+}
+function spostaFoto(d) {
+  const n = (G.r.foto || []).length;
+  if (n < 2) return;
+  G.i = (G.i + d + n) % n;
+  disegnaGalleria();
+}
+function disegnaGalleria() {
+  const r = G.r, f = r.foto || [], n = f.length;
+  const dentro = $("#galleria").contains(document.activeElement);
+  riempi($("#galleria"),
+    h("div", { class: "su" }, h("span", { class: "cod-g" }, r.cod), h("span", { class: "tit" }, r.nome || r.descr),
+      n > 1 ? h("span", { class: "cont" }, (G.i + 1) + " / " + n) : null,
+      h("button", { type: "button", class: "btn-g chiudi", "aria-label": "Chiudi", onclick: chiudiFoto }, icona("x"))),
+    h("div", { class: "centro", onclick: (e) => { if (e.target === e.currentTarget || e.target.classList.contains("quadro")) chiudiFoto(); } },
+      n > 1 ? h("button", { type: "button", class: "btn-g", "aria-label": "Foto precedente", onclick: () => spostaFoto(-1) }, icona("sx")) : null,
+      h("div", { class: "quadro" }, n ? h("img", { src: f[G.i], alt: "Foto " + (G.i + 1) + " di " + n + ": " + (r.nome || r.cod) }) : fotoMancante(r)),
+      n > 1 ? h("button", { type: "button", class: "btn-g", "aria-label": "Foto successiva", onclick: () => spostaFoto(1) }, icona("dx")) : null),
+    n > 1 ? h("div", { class: "miniature" }, f.map((u, j) => h("button", { type: "button", "aria-label": "Foto " + (j + 1), "aria-current": String(j === G.i),
+      onclick: () => { G.i = j; disegnaGalleria(); } }, h("img", { src: u + "?w=240", alt: "" })))) : null);
+  if (dentro && !$("#galleria").contains(document.activeElement)) $("#galleria").focus();
+}
+function fotoMancante(r) {
+  const cart = A.cartellaFoto || "foto";
+  const sep = /\\/.test(cart) ? "\\" : "/";
+  const code = (t) => h("code", null, t);
+  return h("div", { class: "vuota-g" }, icona("foto"),
+    h("h2", null, "Nessuna foto per questo articolo"),
+    h("p", null, "Salva l'immagine nella cartella ", code(cart + sep + r.catalogo), " (oppure direttamente in ", code(cart), ") con il nome ", code(r.cod + ".jpg"), "."),
+    h("p", null, "Per più foto dello stesso articolo: ", code(r.cod + "_2.jpg"), ", ", code(r.cod + "_3.jpg"), "… Formati: jpg, png, webp."),
+    h("p", null, "La foto compare ricaricando la pagina."));
 }
 
 /* ---- dettaglio di un articolo (pannello laterale) ---- */
@@ -789,6 +949,7 @@ function apriDettaglio(i, s) {
     h("div", { class: "barra" }, h("span", { class: "mono codice" }, r.cod), h("span", { class: "tenue" }, r.catalogo), chiudi),
     h("div", { class: "corpo" },
       h("h2", { id: "det-titolo" }, r.nome || r.descr),
+      fotoDettaglio(r),
       h("dl", { class: "campi" },
         h("dt", null, "Famiglia"), h("dd", null, famLink),
         h("dt", null, "Nome senza attributi"), h("dd", null, r.nome2 || "—"),
@@ -809,7 +970,15 @@ function chiudiDettaglio() {
   if (primaDelDettaglio && document.contains(primaDelDettaglio)) primaDelDettaglio.focus();
 }
 $("#velo").addEventListener("click", chiudiDettaglio);
-document.addEventListener("keydown", (e) => { if (e.key === "Escape") chiudiDettaglio(); });
+document.addEventListener("keydown", (e) => {
+  if (!$("#galleria").hidden) {                 // la galleria e' sopra a tutto: Esc chiude solo lei
+    if (e.key === "Escape") { e.preventDefault(); chiudiFoto(); }
+    else if (e.key === "ArrowRight") spostaFoto(1);
+    else if (e.key === "ArrowLeft") spostaFoto(-1);
+    return;
+  }
+  if (e.key === "Escape") chiudiDettaglio();
+});
 
 /* ================= ATTRIBUTI CANDIDATI ================= */
 async function vistaCandidati(p, nuova) {

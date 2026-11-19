@@ -25,3 +25,8 @@ fonti/aircontrolclima_it/pagine.json
 # Sistema
 Thumbs.db
 .DS_Store
+
+# foto: pesanti (Caleffi ~470 MB), si copiano sulla VPS a parte; la mappa.json (piccola) si puo committare
+foto/*/_file/
+foto/_miniature/
+foto/*/*.jpg
