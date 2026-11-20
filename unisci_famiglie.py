@@ -5,6 +5,8 @@
   py -3.15 unisci_famiglie.py                               unisce (tutti i cataloghi presenti)
   py -3.15 unisci_famiglie.py --catalogo "Aquatechnik"      solo gli articoli di un catalogo
   py -3.15 unisci_famiglie.py --prova --dubbi               elenca anche gli articoli incerti / in piu' tipi
+  py -3.15 unisci_famiglie.py --prova --cambi               elenca gli spostamenti per catalogo (famiglia di adesso -> nuova):
+                                                            dopo una regola nuova, sostituisce il «diff» fatto a mano
 
 Cosa fa: per ogni articolo con nomeV2 che combacia con una regola mette `famiglia_id` della famiglia comune (la crea se serve,
 con una nota); riscrive la tabella tipo_incerto (articoli messi nel tipo piu' vicino senza esserne sicuri, e articoli che stanno
@@ -32,6 +34,9 @@ def main():
     ap.add_argument("--catalogo", help="un solo catalogo (default: tutti)")
     ap.add_argument("--prova", action="store_true", help="non scrive nel database")
     ap.add_argument("--dubbi", action="store_true", help="elenca gli articoli incerti o messi in piu' tipi")
+    ap.add_argument("--cambi", action="store_true",
+                    help="elenca, catalogo per catalogo, gli spostamenti (famiglia di adesso -> famiglia nuova): serve dopo una "
+                         "regola nuova per vedere se tocca articoli di altri cataloghi")
     a = ap.parse_args()
     conn = collega()
     cur = conn.cursor()
@@ -41,6 +46,7 @@ def main():
     righe = cur.fetchall()
 
     nuovo = {}                                           # codice -> nome famiglia comune
+    spostati = collections.Counter()                     # (catalogo, famiglia di adesso, famiglia nuova) -> articoli
     prima = collections.defaultdict(collections.Counter)  # famiglia comune -> {(catalogo, famiglia di prima): articoli}
     dubbi = []                                           # (codice, tipo, principale)
     esempi = collections.defaultdict(collections.Counter)  # tipo -> {(nomeV2, nota): articoli} per --dubbi
@@ -51,6 +57,7 @@ def main():
         comune, incerto, anche = c
         if comune != fam_nome:
             nuovo[codice] = comune
+            spostati[(cat, fam_nome or "(senza famiglia)", comune)] += 1
         prima[comune][(cat, fam_nome)] += 1
         if incerto:
             dubbi.append((codice, comune, True))
@@ -76,6 +83,13 @@ def main():
             if a.dubbi:
                 for (v2, nota), n in sorted(esempi[nome].items()):
                     print("        ? %3d  %-60s %s" % (n, v2[:60], nota))
+    if a.cambi:
+        print("\nSpostamenti (famiglia di adesso -> famiglia nuova):" if spostati else "\nNessuno spostamento.")
+        for cat in sorted({k[0] for k in spostati}):
+            righe_cat = sorted(((k, n) for k, n in spostati.items() if k[0] == cat), key=lambda x: (-x[1], x[0]))
+            print("  %s: %d articoli" % (cat, sum(n for _, n in righe_cat)))
+            for (_c, da, verso), n in righe_cat:
+                print("    %4d  %-45s -> %s" % (n, da[:45], verso))
     if a.prova:
         return
 

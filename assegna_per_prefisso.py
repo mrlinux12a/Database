@@ -2,7 +2,8 @@
 """Mette in una famiglia gli articoli rimasti SENZA famiglia il cui nomeV2 comincia (a parola intera) con il nome di una
 famiglia gia' usata nello STESSO catalogo: "Comando elettrotermico con microinterruttore" -> famiglia "Comando elettrotermico",
 "Plenum bocchetta PSF, L400, aperto" -> "Plenum". Il resto del nome e' una variante (attributo candidato), non un altro
-prodotto. Se piu' famiglie vanno bene vince quella con il nome piu' lungo.
+prodotto. Se piu' famiglie vanno bene vince quella con il nome piu' lungo. «Ricambio X» (senza una famiglia che cominci con
+«Ricambio X») si guarda come «X»: «Ricambio pompa UPM3» -> «Pompa», «Ricambio servocomando» -> «Servocomando».
 
   py -3.15 assegna_per_prefisso.py --prova        elenca cosa farebbe
   py -3.15 assegna_per_prefisso.py                assegna
@@ -31,6 +32,8 @@ ESCLUSI = {
     ("Caleffi", "F49474/BL"): "Filtro pulizia: non si capisce che prodotto e'",
     ("Caleffi", "F49474/GR"): "Filtro mantenimento: non si capisce che prodotto e'",
     ("Caleffi", "559003"): "Pozzetto con inserto magnetico: non e' un pozzetto portasonda come gli altri",
+    ("Giacomini", "K471X001"): "Chiave USB di programmazione: non e' una chiave di montaggio",
+    ("Giacomini", "H174CY001"): "Prolunga asta/vitone del rubinetto H173: non e' la prolunga con dado prigioniero dei raccordi",
 }
 
 
@@ -58,6 +61,9 @@ def main():
     for codice, cat, cod, v2 in cur.fetchall():
         n = norm(v2)
         cand = [k for k in famiglie.get(cat, {}) if n.startswith(k + " ")]
+        if not cand and re.match(r"ricambi[oi] ", n):     # «Ricambio pompa UPM3» -> famiglia «Pompa» (conta il pezzo dopo)
+            n = re.sub(r"^ricambi[oi] ", "", n)
+            cand = [k for k in famiglie.get(cat, {}) if n == k or n.startswith(k + " ")]
         if not cand:
             continue
         if (cat, cod) in ESCLUSI:

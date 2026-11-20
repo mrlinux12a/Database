@@ -5,7 +5,7 @@ controllata e condivisa: si allunga a mano, una voce alla volta, solo quando i p
 
 Ogni voce: (nome della famiglia, regex sul nomeV2 in minuscolo [, regex sul nomeV1 in minuscolo] [, INCERTO | ANCHE(...)]).
 La prima che combacia vince. Si applica a TUTTI gli articoli con nomeV2 (anche a quelli senza famiglia): e' la prima parola/le
-prime parole del nomeV2 a dire che tipo di prodotto e'. Le varianti (ridotto, intermedio, 45°, 90°, con girello, chiuso,
+prime parole del nomeV2 a dire che tipo di prodotto e'. «Ricambio X» senza una voce sua si guarda come «X» (classifica). Le varianti (ridotto, intermedio, 45°, 90°, con girello, chiuso,
 aperto, modello PSF/DLF/LAF..., gamma Solar/Autoflow/Legiomix...) NON sono famiglie: restano nel nomeV2 e negli attributi.
   * regex sul nomeV1: quando il tipo e' scritto nella descrizione ma e' un attributo e quindi non e' piu' nel nomeV2 («bicono»,
     «a pressare», «per gas», «per diffusori»).
@@ -42,6 +42,67 @@ def ANCHE(*tipi):
 
 
 COMUNI = [
+    # ---- Doppioni tra famiglie (2026-11-20): plurale/singolare, stesse parole in un altro ordine, stesso pezzo con un nome un
+    # po' diverso in due cataloghi. Trovati con  proponi_famiglie.py --prefisso  e guardando le famiglie provvisorie.
+    ("Collare di fissaggio", r"^collari di fissaggio\b"),               # Air Control: plurale di «Collare fissaggio»
+    ("Collare di fissaggio", r"^collarino di fissaggio\b", INCERTO),
+    ("Diffusore circolare", r"^diffusori circolari\b"),                 # Air Control: «Diffusori circolari coni fissi»
+    ("Portello con telaio", r"^telaio e portello\b|^portello (?:d'ispezione )?(?:con|e) telaio\b|^portello filo muro con telaio\b"),
+    ("Cassetta d'ispezione", r"^cassetta (?:d')?ispezione\b"),          # Aquatechnik «cassetta ispezione», Caleffi serie 360-363
+    ("Ammortizzatore colpo d'ariete", r"^(?:antishock )?ammortizzatore colp[oi] (?:d')?ariete\b"),   # Caleffi 525, Giacomini H180
+    ("Ammortizzatore colpo d'ariete", r"^ammortizzatore per impianto termico\b", INCERTO),   # Watts AM: «colpo d'ariete» non e' scritto
+    ("Guscio antimanomissione", r"^guscio (?:antimanomissione|protezione anti-asportazione/manomissione)\b"),   # Caleffi 209, Giacomini R455
+    ("Supporto per collettori", r"^supporti\b", r"\bcollettor[ei]\b"),
+    ("Supporto per collettori", r"^staffa fissaggio per collettori\b", INCERTO),
+    ("Chiave", r"^chiave (?:per serraggio|multiuso|per dadi|smontaggio|speciale serraggio)\b"),   # attrezzi (non la chiave USB)
+    ("Collare", r"^fires collare$"),                                    # Fires = linea antincendio di Aquatechnik (come Fires tee)
+    ("Innesto diretto", r"^fires innesto diretto\b"),
+    ("Valvola a sfera", r"^fires valvola (?:a )?sfera\b"),
+
+    # ---- Giacomini (2026-11-20). In cima: alcune parole qui vogliono dire un altro pezzo («guaina» per tubi, «raccordo curvo»).
+    # (A) nei tipi che c'erano, con le parole di Giacomini
+    ("Guaina corrugata", r"^guaina$", r"\bper tubi multistrato\b", INCERTO),   # R985: guaina per tubi (non il pozzetto di Watts)
+    ("Curva / Gomito", r"^raccordo curvo\b(?!\s+isolante)|^(?:\d+ )?raccordi gomito\b"),   # «curvo isolante» = canale VMC Kepp
+    ("Tee", r"^(?:\d+ )?raccordi tee\b"),
+    ("Valvola monotubo / bitubo", r"^valvola (?:mono-bitubo|micrometrica bitubo)\b"),
+    ("Valvola manuale", r"^valvola (?:diritta|squadra) semplice regolazione\b"),   # valvola per radiatore a semplice regolazione
+    ("Valvola di sfogo aria", r"^valvola automatica sfogo aria\b"),
+    ("Comando elettrotermico", r"^testa elettrotermica\b"),          # Giacomini «testa», Caleffi «comando»: stesso attuatore
+    ("Kit valvola + detentore + testa termostatica",
+     r"^(?:kit|confezione) (?:valvola con testa e detentore|testa con valvola e detentore)\b"),
+    ("Coppia valvola e detentore", r"^kit valvola (?:micrometrica )?termostatizzabile\b.*\bcon detentore\b", INCERTO),
+    ("Gruppo di rilancio e miscelazione", r"^gruppo (?:miscelazione|miscelatore)\b", INCERTO),   # R557R con circolatore
+    ("Raccordo adattatore", r"^adattatore per\b", r"\bper tubo rame\b"),   # T178C «adattatore per tubo rame»
+    ("Kit coibentazione", r"^set isolante\b", ANCHE("Coibentazione")),     # R553W: isolante del collettore, come R551W
+    ("Kit coibentazione", r"^coppia coibentazione\b", ANCHE("Coibentazione")),
+    ("Clip reggitubo", r"^clip (?:fissa tubo|di fissaggio)\b(?!.*\bvmc\b)", r"modello [rk]\d", INCERTO),   # non le clip dei canali VMC
+    ("Coperchio cassetta", r"^coperchio\b", r"\bper cassetta\b", INCERTO),
+    ("Calibratore", r"^calibratore\b"),
+    # (B) tipi nuovi dentro famiglie/categorie che c'erano, (C) tipi nuovi
+    ("Testa termostatica / comando termostatico", r"^(?:testa|testina) termostatica\b|^comando termostatico\b"),
+    ("Nipplo", r"^raccordo a nipple\b|^nipplo\b"),
+    ("Cassetta per collettori", r"^cassetta\b", r"\bper collettor[ei]\b"),
+    ("Cassetta per collettori", r"^cassetta\b", r"modello r(?:500|595)\b", INCERTO),   # R500/R595 senza «per collettore»
+    ("Supporto per collettori", r"^supporto\b", r"\bcollettor[ei]\b"),
+    ("Pannello radiante in cartongesso", r"^pannello\b", r"cartongesso|^pannello (?:radiante|gkc)\b"),
+    ("Pannello isolante per pavimento radiante", r"^pannello\b",
+     r"^pannello (?:isolante|preformato|termoformato|basic|bugnato|liscio)\b"),
+    ("Rubinetto di erogazione", r"^rubinetto erogazione\b"),
+    ("Pinza / inserto per pressatrice", r"^pinza\b|^inserto th per ganascia\b|^ganascia\b", r"modello rp\d"),
+    ("Terminale per collettore", r"^terminale con\b"),
+    ("Centralina di termoregolazione", r"^centralina (?:con display|elettronica)\b"),
+    ("Cronotermoumidostato", r"^cronotermoumidostato\b"),
+    ("Chiave", r"^chiave\b(?!\s+usb)", r"modello [rpt]\d"),
+    ("Binario fissatubo", r"^binario\b"),
+    ("Gruppo termostatizzabile monotubo / bitubo", r"^gruppo termostatizzabile\b"),
+    ("Sensore wireless", r"^sensore wireless\b"),
+    ("Modulo per collettore", r"^modulo (?:di )?(?:ritorno|mandata|aggiuntivo|tappo)\b"),
+    ("Separatore di flusso", r"^separatore flusso\b"),
+    ("Corpo valvola", r"^corpo valvola\b", r"modello p\d"),        # ricambio dei collettori R553 (non il Caleffi per satellite)
+    ("Volantino", r"^volantino\b"),
+    ("Fascia perimetrale", r"^fascia\b"),
+    ("Prolunga", r"^prolunga (?:con|cromata)\b"),
+
     # ---- Watts (2026-11-19). Vanno prima delle altre: alcune parole («giunto», «guaina») qui vogliono dire un altro pezzo.
     # (A) nei tipi che c'erano, con le parole di Watts
     ("Giunto antivibrante", r"^giunto$", r"\bepdm\b", INCERTO),         # ZKB/ZKT in EPDM con DN/PN: non e' scritto «antivibrante»
@@ -274,7 +335,17 @@ def classifica(nomev2, nomev1=""):
     for nome, rx, rx1, incerto, anche in _REGOLE:
         if rx.search(n) and (rx1 is None or rx1.search(n1)):
             return nome, incerto, anche
+    # «Ricambio X» (2026-11-20): «ricambio» non e' un tipo, conta il pezzo che viene dopo (Ricambio pompa = Pompa, Ricambio
+    # valvola di sicurezza = Valvola di sicurezza), come gia' «Ricambio cartuccia» = Cartuccia
+    m = RICAMBIO.match(n)
+    if m:
+        c = classifica(n[m.end():], RICAMBIO.sub("", n1, count=1))
+        return c if c and c[0] not in NON_DA_RICAMBIO else None
     return None
+
+
+RICAMBIO = re.compile(r"^ricambi[oi]\s+")
+NON_DA_RICAMBIO = {"Tubo"}     # «Ricambio tubo con ritegno per 167»: pezzo di tubo di un gruppo, non un tubo da impianto
 
 
 def famiglia_comune(nomev2, nomev1=""):

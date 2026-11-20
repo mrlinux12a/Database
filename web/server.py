@@ -26,7 +26,8 @@ Indirizzi
   /api/candidati    ?catalogo=Nome   tutti gli attributi candidati, con il nome dell'articolo di esempio
   /foto/<file>      le foto degli articoli (cartella `foto` del progetto o CARTELLA_FOTO; vedi indice_foto)
 
-Filtri comuni: famiglia=-1 = articoli senza famiglia; f=chiave::valore ripetuto con la STESSA chiave = uno qualsiasi di quei valori
+Filtri comuni: famiglia=-1 = articoli senza famiglia (con &proposta=Nome: solo quelli della famiglia da approvare «Nome»,
+tabella famiglia_proposta; /api/famiglie le elenca in «proposte»); f=chiave::valore ripetuto con la STESSA chiave = uno qualsiasi di quei valori
 (con chiavi diverse: tutti). /api/faccette con &tutte=1 restituisce i valori di tutti gli attributi in una volta.
 /api/articoli accetta anche ordine=a:<chiave> (&verso=desc) per ordinare secondo un attributo (prima il numero, poi il testo).
 """
@@ -265,6 +266,14 @@ def con_cursore(funzione):
 
 _RICHIESTA = threading.local()     # parametri della richiesta in corso che non passano da tutte le funzioni (filtro foto)
 _TIPO_INCERTO = [False]
+_PROPOSTE = [False]
+
+
+def ha_proposte():
+    """True se c'e' la tabella famiglia_proposta (famiglie da approvare, la scrive proponi_famiglie.py --prefisso --salva)."""
+    if not _PROPOSTE[0]:
+        _PROPOSTE[0] = bool(con_cursore(lambda cur: cur.execute("SELECT to_regclass('famiglia_proposta') IS NOT NULL") or cur.fetchone()[0]))
+    return _PROPOSTE[0]
 
 
 def ha_tipo_incerto():
@@ -299,6 +308,13 @@ def condizioni(q, attr, origine, catalogo="", famiglia=0, filtri=(), escludi="",
         params.append(v2)
     if famiglia == -1:
         where.append("m.famiglia_id IS NULL")
+        proposta = getattr(_RICHIESTA, "proposta", "")       # una famiglia da approvare (gli articoli sono senza famiglia)
+        if proposta:
+            if ha_proposte():
+                where.append("EXISTS (SELECT 1 FROM famiglia_proposta p WHERE p.codice = m.codice AND p.nome = %s)")
+                params.append(proposta)
+            else:
+                where.append("FALSE")
     elif famiglia:
         if ha_tipo_incerto():                            # anche gli articoli che stanno ANCHE in questo tipo (indecisi)
             where.append("(m.famiglia_id = %s OR EXISTS (SELECT 1 FROM tipo_incerto t WHERE t.codice = m.codice "
@@ -668,7 +684,20 @@ def elenco_famiglie(catalogo=""):
         senza = cur.fetchone()[0]
         cur.execute("SELECT count(*) FROM materiale m WHERE TRUE" + filtro, p)
         totale = cur.fetchone()[0]
-        return {"catalogo": catalogo, "totale": totale, "senza_famiglia": senza, "famiglie": famiglie}
+        proposte = []                           # famiglie da approvare: gli articoli restano senza famiglia
+        if ha_proposte():
+            cur.execute("SELECT p.nome, m.catalogo, count(*), min(p.nota), min(p.data) FROM famiglia_proposta p "
+                        "JOIN materiale m ON m.codice = p.codice WHERE m.famiglia_id IS NULL" + filtro +
+                        " GROUP BY 1, 2", p)
+            per = {}
+            for nome, cat, n, nota, data in cur.fetchall():
+                x = per.setdefault(nome, {"nome": nome, "n": 0, "cataloghi": {}, "note": [], "data": str(data)})
+                x["n"] += n
+                x["cataloghi"][cat] = n
+                if nota and nota not in x["note"]:
+                    x["note"].append(nota)
+            proposte = sorted(per.values(), key=lambda x: (-x["n"], x["nome"].lower()))
+        return {"catalogo": catalogo, "totale": totale, "senza_famiglia": senza, "famiglie": famiglie, "proposte": proposte}
 
     return con_cursore(esegui)
 
@@ -865,6 +894,7 @@ class Handler(BaseHTTPRequestHandler):
             args = parse_qs(url.query)
             _RICHIESTA.foto = (args.get("foto") or [""])[0]
             _RICHIESTA.v2 = (args.get("v2") or [""])[0][:300]
+            _RICHIESTA.proposta = (args.get("proposta") or [""])[0][:200]
 
             def arg(nome, default=""):
                 return (args.get(nome) or [default])[0]

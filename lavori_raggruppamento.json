@@ -439,6 +439,149 @@
         "Tee",
         "Riduzione"
       ]
+    },
+    {
+      "id": "2026-11-20-testa-termostatica-/-comando-t",
+      "data": "2026-11-20",
+      "tipo": "nuovo",
+      "nota": "Giacomini: testa/testina termostatica (Giacomini) e comando termostatico (Caleffi, prima «Comando termostatico con adattatore») sono lo stesso prodotto: un tipo solo",
+      "famiglie": [
+        "Testa termostatica / comando termostatico"
+      ]
+    },
+    {
+      "id": "2026-11-20-valvola-monotubo-/-bitubo",
+      "data": "2026-11-20",
+      "tipo": "migliorato",
+      "nota": "Giacomini: valvole mono-bitubo, a semplice regolazione, sfogo aria automatico, teste elettrotermiche, kit valvola+testa+detentore, raccordo curvo, set isolante entrano nei tipi che c'erano",
+      "famiglie": [
+        "Valvola monotubo / bitubo",
+        "Valvola manuale",
+        "Valvola di sfogo aria",
+        "Comando elettrotermico",
+        "Kit valvola + detentore + testa termostatica",
+        "Coppia valvola e detentore",
+        "Curva / Gomito",
+        "Kit coibentazione",
+        "Raccordo adattatore"
+      ]
+    },
+    {
+      "id": "2026-11-20-collare-di-fissaggio",
+      "data": "2026-11-20",
+      "tipo": "migliorato",
+      "nota": "Doppioni tra famiglie: plurale/singolare (Collari di fissaggio, Diffusori circolari), parole in altro ordine (Telaio e portello), stesso pezzo con nome diverso in due cataloghi (Cassetta ispezione, Antishock ammortizzatore, Chiave per serraggio, Staffa per collettori, Fires collare/innesto/valvola): 82 articoli",
+      "famiglie": [
+        "Collare di fissaggio",
+        "Diffusore circolare",
+        "Portello con telaio",
+        "Cassetta d'ispezione",
+        "Ammortizzatore colpo d'ariete",
+        "Guscio antimanomissione",
+        "Supporto per collettori",
+        "Chiave",
+        "Collare",
+        "Innesto diretto",
+        "Valvola a sfera"
+      ]
+    },
+    {
+      "id": "2026-11-20-angolare",
+      "data": "2026-11-20",
+      "tipo": "nuovo",
+      "nota": "Famiglie per prime parole del nome (proponi_famiglie.py --prefisso), approvate il 2026-11-20: 214 articoli che erano senza famiglia",
+      "famiglie": [
+        "Angolare",
+        "Batteria",
+        "Bicchieratrice",
+        "Calotta",
+        "Campana",
+        "Canotto",
+        "Cappuccio",
+        "Cassetta con collettore",
+        "Cassetta custodia",
+        "Cassetta per Plurimod",
+        "Centralina",
+        "Cesoia",
+        "Contenitore",
+        "Convertitore",
+        "Curvatubi",
+        "Elettronica",
+        "Fascette",
+        "Flangia",
+        "Flussometro",
+        "Fondo",
+        "Fresa",
+        "Funzione",
+        "Gateway",
+        "Legioflow",
+        "Maniglia",
+        "Misuratore",
+        "Molla",
+        "Motore",
+        "Piastra",
+        "Piastrina",
+        "Placca",
+        "Polifusore",
+        "Pompa",
+        "Profilo",
+        "Protezione",
+        "Raschiatubo",
+        "Rialzo",
+        "Ritegno",
+        "Rompigetto",
+        "Servomotore",
+        "Stacco",
+        "Staffa",
+        "Supporto",
+        "Tegola",
+        "Tiranti"
+      ]
+    },
+    {
+      "id": "2026-11-20-codolo",
+      "data": "2026-11-20",
+      "tipo": "migliorato",
+      "nota": "Ricambi Caleffi: «Ricambio X» va nel tipo di X (regola in famiglie_comuni.classifica e assegna_per_prefisso): 46 articoli",
+      "famiglie": [
+        "Codolo",
+        "Pozzetto",
+        "Tappo",
+        "Termometro",
+        "Coibentazione",
+        "Guscio isolante",
+        "Regolatore climatico",
+        "Sonda",
+        "Alimentatore",
+        "Bocchettone",
+        "Flussostato",
+        "Kit di fissaggio",
+        "Manicotto",
+        "Modulo d'utenza",
+        "Termostato",
+        "Valvola deviatrice",
+        "Valvola di sicurezza",
+        "Volantino",
+        "Pompa",
+        "Servocomando",
+        "Batteria",
+        "Filtro",
+        "Guscio copritubo",
+        "Manopola",
+        "Ritegno"
+      ]
+    },
+    {
+      "id": "2026-11-20-attuatore",
+      "data": "2026-11-20",
+      "tipo": "migliorato",
+      "nota": "Unite le proposte per prime parole con le famiglie dello stesso nome di altri cataloghi (decisione dell'utente, 2026-11-20): Attuatore +32 Air Control, Dima +9 Caleffi, Rosone +5 Giacomini, Adattatore +9 Caleffi",
+      "famiglie": [
+        "Attuatore",
+        "Dima",
+        "Rosone",
+        "Adattatore"
+      ]
     }
   ]
 }

@@ -8,7 +8,8 @@
   --prova                                                 mostra senza scrivere
 
 Nuova = famiglia con almeno un articolo del catalogo (anche solo «anche» in tipo_incerto) il cui nome non c'era nella
-fotografia. «tipo» se la sua prima parola e' quella di una famiglia che c'era gia' (Valvola di sovrapressione: la famiglia
+fotografia e che NON ha ancora avuto un tentativo di raggruppamento (dal 2026-11-20: i tipi di famiglie_comuni.py e le famiglie
+con un lavoro in lavori_raggruppamento.json non prendono il rosso; le famiglie da approvare non sono famiglie). «tipo» se la sua prima parola e' quella di una famiglia che c'era gia' (Valvola di sovrapressione: la famiglia
 Valvola c'era, il tipo no); «famiglia» se e' nuova anche la prima parola (Manometro). Nella pagina web: barretta rossa sulla
 scheda della famiglia e della sua categoria, e la voce «nuovo» nella legenda. Il segnetto resta finche' non si conferma.
 Si va per NOME (non per id): rifare le famiglie (azzera, proponi, unisci) non toglie e non sposta i segnetti.
@@ -20,8 +21,10 @@ import os
 import re
 
 from arricchisci import collega
+from arricchimento.famiglie_comuni import TIPI
 
 FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "famiglie_nuove.json")
+FILE_LAVORI = os.path.join(os.path.dirname(os.path.abspath(__file__)), "lavori_raggruppamento.json")
 
 
 def prima_parola(nome):
@@ -98,9 +101,17 @@ def main():
     cur.execute("SELECT DISTINCT f.nome FROM materiale m " + tipo_incerto +
                 " JOIN famiglia f ON f.id = m.famiglia_id OR f.id = t.famiglia_id WHERE m.catalogo = %s", (a.catalogo,))
     del_catalogo = sorted(r[0] for r in cur.fetchall())
+    # il rosso e' solo per famiglie/tipi nuovi che non hanno ancora avuto un tentativo di raggruppamento: niente rosso ai tipi
+    # di famiglie_comuni.py (nati da una regola di unione) ne' alle famiglie con un lavoro in lavori_raggruppamento.json
+    raggruppate = set(TIPI)
+    try:
+        with open(FILE_LAVORI, encoding="utf-8") as f:
+            raggruppate |= {n for l in json.load(f).get("lavori", []) for n in l.get("famiglie", [])}
+    except (OSError, ValueError):
+        pass
     nuove = {}
     for n in del_catalogo:
-        if n in prima:
+        if n in prima or n in raggruppate:
             continue
         w = prima_parola(n)
         nuove[n] = {"tipo": "tipo" if w in parole_prima else "famiglia", "categoria": w if w in parole_prima else None}

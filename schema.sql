@@ -75,6 +75,15 @@ CREATE TABLE IF NOT EXISTS tipo_incerto (
     PRIMARY KEY (codice, famiglia_id)
 );
 CREATE INDEX IF NOT EXISTS tipo_incerto_famiglia_idx ON tipo_incerto (famiglia_id);
+-- famiglia_proposta: famiglie DA APPROVARE (proponi_famiglie.py --prefisso --salva). Articoli senza famiglia raggruppati per le
+-- prime parole del nomeV2; restano senza famiglia (famiglia_id NULL) finche' una persona non approva (--approva "Nome").
+CREATE TABLE IF NOT EXISTS famiglia_proposta (
+    codice text NOT NULL PRIMARY KEY REFERENCES materiale(codice) ON DELETE CASCADE,
+    nome   text NOT NULL,
+    nota   text,                    -- perche' e' da confermare (es. stesso nome di una famiglia di un altro catalogo)
+    data   date NOT NULL DEFAULT current_date
+);
+CREATE INDEX IF NOT EXISTS famiglia_proposta_nome_idx ON famiglia_proposta (nome);
 
 -- attributo_candidato: testo che resta nel nomeV2 e si ripete su molti articoli = possibile nuovo attributo (poi nomeV3).
 -- Lo propone proponi_attributi.py; lo approva una persona (stato: proposto -> approvato | scartato).

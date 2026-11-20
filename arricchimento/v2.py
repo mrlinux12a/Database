@@ -5,11 +5,11 @@ import re
 
 N = r"\d+(?:[.,]\d+)?"
 # (attributi che autorizzano la rimozione, espressione da togliere)
-PARTE_OD = r'\d+(?:[.,]\d+)?(?:/\d+(?:[.,]\d+)?)?(?:"(?:[MF]/[MF]|[MF])?|[MF](?![\w"]))?'   # 63 · 4,2 · 25/3,5 · 1/2" · 2.1/2"M · 1/2"M/F · 23/1,5M
+PARTE_OD = r'\d+(?:[.,]\d+)?(?:/\d+(?:[.,]\d+)?)?(?:"(?:[MF]/[MF]|[MF]|E(?![a-wyz]))?|[MF](?![\w"]))?'   # 63 · 4,2 · 25/3,5 · 1/2" · 2.1/2"M · 1/2"M/F · 23/1,5M
 REGOLE = [
     ({"attacco", "n_derivazioni"}, r"\b\d+ attacch?[oi]\b(?:\s*Ø\d+(?:[/-]\d+)?(?![\d\"/.,]))?(?:\s+(?:posteriore|laterale|superiore|inferiore|frontale))?"),
     ({"n_derivazioni"}, r"\b\d+ stacch[io]\b(?:\s*Ø\d+)?"),
-    ({"n_derivazioni"}, r"\b\d+(?:[-+]\d+)?\s*(?:uscite|attacchi|derivazioni|circuiti)\b"),
+    ({"n_derivazioni"}, r"\b\d+(?:[-+]\d+)?\s*(?:uscite|attacchi|derivazion[ei]|circuiti)\b"),
     ({"diametro", "attacco"}, r"\b\d+\s*x\s*Ø\d+"),
     # gruppo Ø intero: Ø63 · Ø63-75 · Ø14÷32 · Ø26x18x26 · Ø1/2"Mx16 · Ø25/3,5 (anche con " mm" dopo)
     ({"diametro", "attacco"}, r"Ø%s(?:[x÷-]%s)*(?:\s?mm\b)?" % (PARTE_OD, PARTE_OD)),
@@ -20,7 +20,9 @@ REGOLE = [
     ({"attacco"}, r'\bG\d+(?:\.\d+/\d+|/\d+)?"'),                          # G3/8" G1/2" (filetto G scritto come attacco)
     ({"lunghezza"}, r"\blunghezza\s+%s\s*(?:mm|cm|m)\b" % N),              # prima della misura sola, o resta «lunghezza»
     ({"lunghezza_cavo"}, r"\b(?:con\s+)?capillare\s+%s\s*mm\b" % N),
+    ({"coibentazione"}, r"\bspessore isolante\s+%s\s*mm\b" % N),             # tubi preisolati: «Sp.13mm» (Giacomini)
     ({"dimensioni", "altezza", "lunghezza", "spessore"}, r"\b%s\s*x\s*%s(?:\s*x\s*%s)?\s*mm\b" % (N, N, N)),
+    ({"dimensioni"}, r"\b%s\s*x\s*%s(?:\s*x\s*%s(?:\s*÷\s*%s)?)?\s*(?:mm|cm|m)\b" % (N, N, N, N)),   # 800 x 650 x 85÷140 mm · 1,2 x 0,6 m
     ({"dimensioni", "altezza", "lunghezza", "spessore"}, r"\b%s\s*mm\b" % N),
     ({"comando"}, r"(?<!\w)comando(?!\w)(?=\s*(?:,|$))"),
     ({"feritoie"}, r"\b\d+ feritoi[ae]\b"),

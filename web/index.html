@@ -143,6 +143,9 @@
   .pill.blu { background: var(--accento-bg); border-color: transparent; color: var(--accento); }
   .fam .piede { font-size: 12px; color: var(--tenue2); }
   a.fam.senza { border-style: dashed; box-shadow: none; background: transparent; }
+  .sez-proposte { margin-top: 34px; }
+  .sez-proposte > h2 { font-size: 19px; margin: 0 0 4px; letter-spacing: -.01em; }
+  .sez-proposte > p.sotto { margin: 0 0 14px; color: var(--tenue); font-size: 14px; }
   .vuoto { padding: 48px 16px; text-align: center; color: var(--tenue); background: var(--card); border: 1px dashed var(--linea2); border-radius: 14px; }
 
   /* ---- pagina articoli (famiglia o ricerca) ---- */
@@ -537,7 +540,7 @@ async function instrada() {
     a.href = indirizzo(a.dataset.vista);
   }
   aggiornaContaCandidati();
-  const chiave = vista + "/" + id + "/" + CATALOGO;
+  const chiave = vista + "/" + id + "/" + (p.get("proposta") || "") + "/" + CATALOGO;
   const nuova = chiave !== ultimaVista;
   ultimaVista = chiave;
   if (nuova) { chiudiDettaglio(); if (A.ctrl) A.ctrl.abort(); }
@@ -578,7 +581,8 @@ async function vistaFamiglie(p, nuova) {
         h("div", { class: "cerca grande" }, icona("cerca"), input)),
       h("div", { class: "avviso", id: "avviso", hidden: true }),
       h("div", { class: "barra-fam", id: "barra-fam" }),
-      h("div", { class: "griglia", id: "griglia" }));
+      h("div", { class: "griglia", id: "griglia" }),
+      h("section", { id: "proposte", class: "sez-proposte", hidden: true }));
   }
   function parametri(cambi) {
     const s = { q, ordine: ordine === "n" ? "" : ordine, comuni: soloComuni ? "1" : "", categoria: catSel, ...cambi };
@@ -655,6 +659,20 @@ async function vistaFamiglie(p, nuova) {
   riempi($("#griglia"), ...(schede.length ? schede
     : [h("div", { class: "vuoto", style: "grid-column:1/-1" }, "Nessuna famiglia con questo nome. Premi Invio per cercare tra gli articoli.")]));
 
+  // famiglie da approvare (proponi_famiglie.py --prefisso --salva): proposte, non famiglie; gli articoli restano «Senza famiglia»
+  const prop = (soloComuni || catSel) ? [] : (d.proposte || []).filter((x) => parole.every((w) => norm(x.nome).includes(w)));
+  const sezProp = $("#proposte");
+  sezProp.hidden = !prop.length;
+  riempi(sezProp, prop.length ? [
+    h("h2", null, "Famiglie da approvare"),
+    h("p", { class: "sotto" }, fmt(prop.length) + " proposte · " + fmt(prop.reduce((a, x) => a + x.n, 0)) +
+      " articoli raggruppati per le prime parole del nome. Sono ancora articoli senza famiglia: diventano una famiglia quando una persona approva la proposta."),
+    h("div", { class: "griglia" }, prop.map((x) => h("a", { class: "fam senza", href: indirizzo("famiglia", "senza", { proposta: x.nome }) },
+      h("div", { class: "testa" }, h("div", { class: "tile", style: "--h:220", "aria-hidden": "true" }, iniziali(x.nome)),
+        h("div", null, h("h2", null, x.nome), h("div", { class: "n" }, h("b", null, fmt(x.n)), x.n === 1 ? " articolo" : " articoli"))),
+      h("div", { class: "attr" }, Object.entries(x.cataloghi).map(([c, n]) => h("span", { class: "pill" }, c + " " + fmt(n)))),
+      x.note.length ? h("div", { class: "piede" }, "Da confermare: " + x.note.join("; ")) : null)))] : []);
+
   // con un testo nella ricerca: quanti articoli lo contengono (in tutte le famiglie)
   const avviso = $("#avviso");
   if (!q) { avviso.hidden = true; return; }
@@ -712,6 +730,7 @@ function statoArticoli(vista, id, p) {
   return {
     vista, id, q: p.get("q") || "", pagina: Math.max(1, parseInt(p.get("pagina") || "1", 10) || 1),
     foto: ["senza", "bassa", "dubbia", "con"].includes(p.get("foto")) ? p.get("foto") : "", v2: p.get("v2") || "",
+    proposta: id === "senza" ? p.get("proposta") || "" : "",
     ordine: p.get("ordine") || "nome", verso: p.get("verso") === "desc" ? "desc" : "asc", modo: p.get("modo") === "schede" ? "schede" : "tabella",
     filtri: p.getAll("f").filter((f) => f.includes("::")).map((f) => { const i = f.indexOf("::"); return [f.slice(0, i), f.slice(i + 2)]; }),
   };
@@ -723,6 +742,7 @@ function hashArticoli(s, cambi) {
   for (const [k, v] of t.filtri) p.append("f", k + "::" + v);
   if (t.foto) p.set("foto", t.foto);
   if (t.v2) p.set("v2", t.v2);
+  if (t.proposta) p.set("proposta", t.proposta);
   if (t.ordine !== "nome") p.set("ordine", t.ordine);
   if (t.verso === "desc") p.set("verso", "desc");
   if (t.modo !== "tabella") p.set("modo", t.modo);
@@ -736,6 +756,7 @@ function paramApi(s, extra) {
   if (s.q) p.set("q", s.q);
   if (s.foto) p.set("foto", s.foto);
   if (s.v2) p.set("v2", s.v2);
+  if (s.proposta) p.set("proposta", s.proposta);
   for (const [k, v] of s.filtri) p.append("f", k + "::" + v);
   return p;
 }
@@ -745,8 +766,13 @@ async function vistaArticoli(vista, id, p, nuova) {
   let titolo = "Ricerca", sotto = "";
   if (vista === "famiglia") {
     const d = await famiglie(CATALOGO);
-    const f = id === "senza" ? { nome: "Senza famiglia" } : d.famiglie.find((x) => String(x.id) === id);
+    const f = id === "senza" ? { nome: s.proposta || "Senza famiglia" } : d.famiglie.find((x) => String(x.id) === id);
     titolo = f ? f.nome : "Famiglia";
+    if (s.proposta) {
+      const x = (d.proposte || []).find((y) => y.nome === s.proposta);
+      sotto = "Famiglia da approvare: articoli ancora senza famiglia, raggruppati per le prime parole del nome" +
+        (x && x.note.length ? " · da confermare: " + x.note.join("; ") : "");
+    }
     if (f && f.comune) sotto = "In " + Object.entries(f.cataloghi).map(([c, n]) => c + " (" + fmt(n) + ")").join(", ");
     if (f && f.nuova) sotto = [h("span", { class: "nuovo-txt" }, h("i", { class: "sq-nuovo" }),
       (f.nuova.tipo === "tipo" ? "Tipo nuovo" : "Famiglia nuova") + " (" + f.nuova.catalogo + ", " + dataIt(f.nuova.data) + "), da approvare"),
